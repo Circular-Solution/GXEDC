@@ -1,0 +1,5 @@
+{
+  "cs-consumer": "did:web:circularsolution.services:cs-consumer",
+  "cs-provider": "did:web:circularsolution.services:cs-provider"
+}
+
