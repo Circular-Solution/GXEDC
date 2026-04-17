@@ -96,6 +96,38 @@ You should see a `gx:LabelCredential` stored under the consumer.
 
 Create an asset, policy, and contract definitions on the provider, then request the catalog from the consumer.
 
+Example of LabelCredential Policy Check:
+```json
+{
+  "@context": {
+    "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+    "odrl": "http://www.w3.org/ns/odrl/2/"
+  },
+  "@id": "policy-name",
+  "policy": {
+    "@type": "odrl:Set",
+    "odrl:permission": [
+      {
+        "odrl:action": {
+          "@id": "odrl:use"
+        },
+        "odrl:constraint": [
+          {
+            "odrl:leftOperand": {
+              "@id": "https://w3id.org/edc/v0.0.1/ns/GaiaXLabelCredential"
+            },
+            "odrl:operator": {
+              "@id": "odrl:eq"
+            },
+            "odrl:rightOperand": "active"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 ## DIDs and certificates
 
 Each participant needs a DID, a key pair, and (for Gaia-X) an approved X.509 Certificate
