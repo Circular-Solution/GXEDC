@@ -6,8 +6,8 @@ Gaia-X Dataspace deployment built on the Eclipse Dataspace Connector (EDC) with 
 
 This project depends on two companion repositories with custom EDC extensions
 
-- **[Connector](https://github.com/Circular-Solution/Connector)** - fork of [eclipse-edc/Connector](https://github.com/eclipse-edc/Connector) with an OID4VP-based `IdentityService` (replaces DCP for DSP authentication).
-- **[IdentityHub](https://github.com/Circular-Solution/IdentityHub)** - fork of [eclipse-edc/IdentityHub](https://github.com/eclipse-edc/IdentityHub) with OID4VP presentation API and OID4VCI issuer/holder protocols.
+- **[Connector](https://github.com/yamazhen/Connector)** - fork of [eclipse-edc/Connector](https://github.com/eclipse-edc/Connector) with an OID4VP-based `IdentityService` (replaces DCP for DSP authentication).
+- **[IdentityHub](https://github.com/yamazhen/IdentityHub)** - fork of [eclipse-edc/IdentityHub](https://github.com/eclipse-edc/IdentityHub) with OID4VP presentation API and OID4VCI issuer/holder protocols.
 
 Both are built and published to Maven local, then consumed by this project.
 
