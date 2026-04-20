@@ -31,6 +31,7 @@ include(":extensions:superuser-seed")
 include(":extensions:dataplane-public-api")
 include(":extensions:gx-impl")
 include(":extensions:gx-issuer")
+include(":extensions:gx-issuer-s3")
 
 include(":launchers:identity-hub")
 include(":launchers:controlplane")

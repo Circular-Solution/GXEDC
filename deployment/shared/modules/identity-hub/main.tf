@@ -157,6 +157,11 @@ resource "kubernetes_config_map" "identityhub-config" {
     EDC_OID4VCI_CREDENTIAL_CONFIG_IDS     = "gx:LabelCredential"
     EDC_OID4VCI_CREDENTIAL_CONFIG_FORMATS = "jwt_vc_json"
     EDC_OID4VCI_CREDENTIAL_CONFIG_SCOPES  = "gx:LabelCredential"
+
+    AWS_ACCESS_KEY_ID         = var.aws_access_key_id
+    AWS_SECRET_ACCESS_KEY     = var.aws_secret_access_key
+    EDC_GAIAX_GXDCH_S3_BUCKET = var.gxdch_s3_bucket
+    EDC_GAIAX_GXDCH_S3_REGION = var.gxdch_s3_region
   }
 }
 

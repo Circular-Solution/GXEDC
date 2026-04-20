@@ -47,6 +47,11 @@ module "provider-identityhub" {
   gxdch_notary_url             = var.gxdch_notary_url
   gxdch_compliance_url         = var.gxdch_compliance_url
   gxdch_verification_method_id = var.gxdch_verification_method_id
+  gxdch_s3_bucket              = var.gxdch_s3_bucket
+  gxdch_s3_region              = var.gxdch_s3_region
+
+  aws_access_key_id     = var.aws_access_key_id
+  aws_secret_access_key = var.aws_secret_access_key
 }
 
 module "provider-catalog-server" {

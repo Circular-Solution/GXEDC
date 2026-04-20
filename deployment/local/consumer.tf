@@ -39,8 +39,6 @@ module "consumer-identityhub" {
     sts-public-key-id = "key-1"
   }
 
-  # im using a unified did for both consumer and provider
-  # but you should replace this
   gxdch_public_did             = var.gxdch_public_did
   gxdch_base_id                = var.gxdch_domain
   gxdch_legal_name             = var.gxdch_legal_name
@@ -49,6 +47,11 @@ module "consumer-identityhub" {
   gxdch_notary_url             = var.gxdch_notary_url
   gxdch_compliance_url         = var.gxdch_compliance_url
   gxdch_verification_method_id = var.gxdch_verification_method_id
+  gxdch_s3_bucket              = var.gxdch_s3_bucket
+  gxdch_s3_region              = var.gxdch_s3_region
+
+  aws_access_key_id     = var.aws_access_key_id
+  aws_secret_access_key = var.aws_secret_access_key
 }
 
 module "consumer-vault" {

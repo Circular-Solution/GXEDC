@@ -168,3 +168,25 @@ variable "gxdch_compliance_level" {
   type    = string
   default = "standard-compliance"
 }
+
+variable "aws_access_key_id" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "aws_secret_access_key" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "gxdch_s3_bucket" {
+  type    = string
+  default = ""
+}
+
+variable "gxdch_s3_region" {
+  type    = string
+  default = "ap-northeast-2"
+}

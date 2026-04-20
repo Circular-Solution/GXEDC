@@ -110,3 +110,25 @@ variable "gxdch_registry_url" {
   type    = string
   default = "https://www.delta-dao.com/registry/v2"
 }
+
+variable "aws_access_key_id" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "aws_secret_access_key" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "gxdch_s3_bucket" {
+  type    = string
+  default = ""
+}
+
+variable "gxdch_s3_region" {
+  type    = string
+  default = "ap-northeast-2"
+}

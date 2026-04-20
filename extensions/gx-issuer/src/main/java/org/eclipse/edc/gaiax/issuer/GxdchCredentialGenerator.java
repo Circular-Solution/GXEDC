@@ -1,6 +1,8 @@
 package org.eclipse.edc.gaiax.issuer;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +17,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import org.eclipse.edc.gaiax.issuer.spi.VcPublisher;
 import org.eclipse.edc.identityhub.protocols.oid4vci.spi.CredentialGenerator;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.result.Result;
@@ -31,18 +34,26 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 	private final Vault vault;
 	private final Monitor monitor;
 	private final GxdchConfig config;
+	private final VcPublisher publisher;
 
 	public GxdchCredentialGenerator(GxdchClient client, Vault vault, Monitor monitor,
-			GxdchConfig config) {
+			GxdchConfig config, VcPublisher publisher) {
 		this.client = client;
 		this.vault = vault;
 		this.monitor = monitor;
 		this.config = config;
+		this.publisher = publisher;
 	}
 
-	private Result<String> fetchRegistrationCredential(String participantDid, String baseId) {
-		var vcId = baseId + "#registration-number";
-		var subjectId = baseId + "#cs";
+	private void publishIfConfigured(String vcUrl, String vcJwt) {
+		var result = publisher.publish(vcUrl, vcJwt);
+		if (result.failed()) {
+			monitor.warning("VcPublisher failed for " + vcUrl + ": " + result.getFailureDetail());
+		}
+	}
+
+	private Result<String> fetchRegistrationCredential(String participantDid, String vcId) {
+		var subjectId = vcId + "#cs";
 
 		if (config.leiCode() != null && !config.leiCode().isBlank()) {
 			return client.requestLeiCodeCredential(config.leiCode(), vcId, subjectId);
@@ -59,17 +70,17 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 		return Result.failure("No registration number configured (lei/vat/eori/euid)");
 	}
 
-	private Map<String, Object> buildLegalPersonCredential(String participantDid, String baseId,
+	private Map<String, Object> buildLegalPersonCredential(String participantDid, String vcId,
 			String registrationVcId) {
 		var credential = new LinkedHashMap<String, Object>();
 		credential.put("@context", CONTEXT);
 		credential.put("type", List.of("VerifiableCredential", "gx:LegalPerson"));
-		credential.put("id", baseId + "/legal-person.json");
+		credential.put("id", vcId);
 		credential.put("issuer", participantDid);
 		credential.put("validFrom", Instant.now().toString());
 
 		var subject = new LinkedHashMap<String, Object>();
-		subject.put("id", baseId + "/legal-person.json#cs");
+		subject.put("id", vcId + "#cs");
 		subject.put("https://schema.org/name", config.legalName());
 		subject.put("gx:registrationNumber", Map.of("id", registrationVcId));
 		subject.put("gx:headquartersAddress", Map.of(
@@ -86,16 +97,16 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 		return credential;
 	}
 
-	private Map<String, Object> buildIssuerCredential(String participantDid, String baseId) {
+	private Map<String, Object> buildIssuerCredential(String participantDid, String vcId) {
 		var credential = new LinkedHashMap<String, Object>();
 		credential.put("@context", CONTEXT);
 		credential.put("type", List.of("VerifiableCredential", "gx:Issuer"));
-		credential.put("id", baseId + "/terms-and-conditions.json");
+		credential.put("id", vcId);
 		credential.put("issuer", participantDid);
 		credential.put("validFrom", Instant.now().toString());
 
 		var subject = new LinkedHashMap<String, Object>();
-		subject.put("id", baseId + "/terms-and-conditions.json#cs");
+		subject.put("id", vcId + "#cs");
 		subject.put("gaiaxTermsAndConditions", config.termsHash() != null ? config.termsHash() : GAIAX_TERMS_HASH);
 
 		credential.put("credentialSubject", subject);
@@ -154,6 +165,11 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 		return signJwt(issuerDid, vp, "vp+jwt", "vp");
 	}
 
+	private String jwtPayloadJson(String jwt) {
+		var parts = jwt.split("\\.");
+		return new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+	}
+
 	@Override
 	public Result<String> generate(GenerationRequest request) {
 		try {
@@ -163,24 +179,30 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 
 			monitor.info("GXDCH starting credential generation for %s".formatted(participantDid));
 
-			var registrationResult = fetchRegistrationCredential(participantDid, baseId);
+			var registrationVcId = baseId + "/registration-" + UUID.randomUUID() + ".json";
+			var legalPersonId = baseId + "/legal-person-" + UUID.randomUUID() + ".json";
+			var issuerVcId = baseId + "/terms-" + UUID.randomUUID() + ".json";
+
+			var registrationResult = fetchRegistrationCredential(participantDid, registrationVcId);
 			if (registrationResult.failed()) {
 				return Result.failure(registrationResult.getFailureMessages());
 			}
 			var registrationVcJwt = registrationResult.getContent();
-			var registrationVcId = baseId + "#registration-number";
+			publishIfConfigured(registrationVcId, jwtPayloadJson(registrationVcJwt));
 
-			var legalPerson = buildLegalPersonCredential(participantDid, baseId, registrationVcId);
+			var legalPerson = buildLegalPersonCredential(participantDid, legalPersonId, registrationVcId);
 			var legalPersonJwt = signCredential(participantDid, legalPerson);
 			if (legalPersonJwt.failed()) {
 				return Result.failure(legalPersonJwt.getFailureMessages());
 			}
+			publishIfConfigured(legalPersonId, jwtPayloadJson(legalPersonJwt.getContent()));
 
-			var issuer = buildIssuerCredential(participantDid, baseId);
+			var issuer = buildIssuerCredential(participantDid, issuerVcId);
 			var issuerJwt = signCredential(participantDid, issuer);
 			if (issuerJwt.failed()) {
 				return Result.failure(issuerJwt.getFailureMessages());
 			}
+			publishIfConfigured(issuerVcId, jwtPayloadJson(issuerJwt.getContent()));
 
 			var vp = buildVerifiablePresentation(List.of(
 					legalPersonJwt.getContent(),
@@ -192,8 +214,8 @@ public class GxdchCredentialGenerator implements CredentialGenerator {
 				return Result.failure(vpJwtResult.getFailureMessages());
 			}
 
-			var vcId = baseId + "#" + UUID.randomUUID();
-			var complianceResult = client.requestComplianceCredential(vpJwtResult.getContent(), vcId,
+			var labelVcId = baseId + "/label-" + UUID.randomUUID() + ".json";
+			var complianceResult = client.requestComplianceCredential(vpJwtResult.getContent(), labelVcId,
 					config.complianceLevel());
 			if (complianceResult.failed()) {
 				return Result.failure(complianceResult.getFailureMessages());

@@ -1,5 +1,6 @@
 package org.eclipse.edc.gaiax.issuer;
 
+import org.eclipse.edc.gaiax.issuer.spi.VcPublisher;
 import org.eclipse.edc.identityhub.protocols.oid4vci.spi.CredentialGenerator;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
@@ -59,18 +60,27 @@ public class GxdchIssuerExtension implements ServiceExtension {
 	@Inject
 	private Vault vault;
 
+	@Inject
+	private VcPublisher vcPublisher;
+
 	@Override
 	public String name() {
 		return NAME;
 	}
 
+	@Provider(isDefault = true)
+	public VcPublisher defaultVcPublisher() {
+		return new NoopVcPublisher();
+	}
+
 	@Provider
 	public CredentialGenerator credentialGenerator(ServiceExtensionContext context) {
-		var config = new GxdchConfig(publicDid, baseId, legalName, countryCode, leiCode, vatId, eori, euid, complianceLevel,
+		var config = new GxdchConfig(publicDid, baseId, legalName, countryCode, leiCode, vatId, eori, euid,
+				complianceLevel,
 				signingKeyAlias, verificationMethodId, termsHash);
 		var monitor = context.getMonitor().withPrefix("GXDCH-Issuer");
 		var client = new GxdchClient(notaryUrl, complianceUrl, monitor);
-		return new GxdchCredentialGenerator(client, vault, monitor, config);
+		return new GxdchCredentialGenerator(client, vault, monitor, config, vcPublisher);
 	}
 
 }
