@@ -21,10 +21,11 @@ What's built, what's tested, what's not.
 
 | Feature | Status | Notes |
 |---|---|---|
-| `GaiaXLabelCredentialFunction` | Tested | Basic policy matching |
+| `GaiaXLabelCredentialFunction` | Tested | Full GX Basic Functions check |
 | `GaiaXLabelLevelFunction` | Built, not tested | Compiles; no integration test |
 | `GaiaXCredentialValidator` local checks | Tested | Type, time, compliantCredentials |
-| `GaiaXCredentialValidator` basic-functions remote check | Untested end-to-end |  |
-| `GxdchCredentialGenerator` happy path | Tested | Against locally-hosted GXDCH with `DISABLE_SIGNATURE_CHECK=true` |
-| `GxdchCredentialGenerator` error paths | Partial | Some errors covered incidentally during development |
-| Against public GXDCH endpoints | Untested | |
+| `GxdchCredentialGenerator` full flow | Tested | End-to-end via CISPE GXDCH |
+| `GxdchCredentialGenerator` error paths | Partial | |
+| `gx-basic-functions` SRI verification | Tested | |
+| VC publishing via `VcPublisher` SPI | Tested | `S3VcPublisher` implementation, S3 + Cloudfront |
+| Against public GXDCH endpoints | Tested | Tested with CISPE & deltaDAO GXDCH |
