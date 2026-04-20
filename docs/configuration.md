@@ -51,6 +51,13 @@ Active only when `gx-issuer` extension is loaded.
 | `EDC_GAIAX_GXDCH_VERIFICATION_METHOD_ID` | `X509-JWK` | DID fragment for verification method |
 | `EDC_GAIAX_GXDCH_TERMS_HASH` | Gaia-X standard hash | SHA-256 hash of Gaia-X terms text |
 
+## VC Publisher (Identity Hub)
+| Env var | Default | Description |
+| `EDC_GAIAX_GXDCH_S3_BUCKET` | (required) | S3 bucket hosting the issued VCs |
+| `EDC_GAIAX_GXDCH_S3_REGION` | `ap-northeast-2` | AWS region |
+| `AWS_ACCESS_KEY_ID` | | AWS credentials; leave unset for IRSA on EKS |
+| `AWS_SECRET_ACCESS_KEY` | | |
+
 ## Gaia-X Policy (Connector)
 
 Active only when `gx-impl` extension is loaded.
@@ -72,6 +79,12 @@ Active only when `gx-impl` extension is loaded.
 | `gxdch_lei` | LEI code for Gaia-X notary |
 | `gxdch_legal_name` | Legal entity name |
 | `gxdch_country_code` | Country code |
+| `gxdch_domain` | Base URL matching `gxdch_public_did` (e.g. `https://circularsolution.services`) |
+| `gxdch_verification_method_id` | DID doc verification method fragment (e.g. `JWK2020-RSA`) |
+| `gxdch_s3_bucket` | S3 bucket for hosting VCs (empty = no publishing) |
+| `gxdch_s3_region` | AWS region |
+| `aws_access_key_id` | AWS key ID (sensitive) |
+| `aws_secret_access_key` | AWS secret (sensitive) |
 
 Per-participant overrides in `consumer.tf` / `provider.tf`:
 

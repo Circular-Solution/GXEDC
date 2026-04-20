@@ -14,7 +14,8 @@ Both are built and published to Maven local, then consumed by this project.
 ## What this repo contains
 - **`extensions/`** - Gaia-X addon extensions
     - `gx-impl` - `GaiaXLabelCredential` and `GaiaXLabelLevel` policy functions (loaded by the Connector)
-    - `gx-issuer` - `GxdchCredentialGenerator` implementing the `CredentialGenerator` SPI for real Gaia-X compliance flow (loaded by the Identity Hub)
+    - `gx-issuer` - `GxdchCredentialGenerator` and `VcPublisher` SPI (loaded by the Identity Hub)
+    - `gx-issuer-s3` - `S3VcPublisher` implementation of `VcPublisher` for publishing issued VCs on Amazon S3
 - **`launchers/`** - Runtimes for controlplane, dataplane, identity-hub, catalog-server, issuer-service
 - **`deployment/`** - Terraform modules for kind (local) and production infrastructure
 
@@ -29,9 +30,10 @@ Both are built and published to Maven local, then consumed by this project.
 
 ## Three deployment modes
 
-1. **Pure OID4VC** - OID4VP for DSP auth, OID4VCI for credential issuance. No Gaia-X. Drop `gx-impl` + `gx-issuer`.
+1. **Pure OID4VC** - OID4VP for DSP auth, OID4VCI for credential issuance. No Gaia-X. Drop `gx-impl` + `gx-issuer` + `gx-issuer-s3`.
 2. **OID4VC + Gaia-X policy** - keep `gx-impl` for policy. Seed credentials manually.
-3. **Full Gaia-X** - keep both. OID4VCI auto-issues credentials via GXDCH (notary + compliance)
+3. **Full Gaia-X** - keep both. OID4VCI auto-issues credentials via GXDCH (notary + compliance). Add `gx-issuer-s3` (or another `VcPublisher` implementation) if you need strict mode where `gx-basic-functions` verifies SRI hashes of each compliant credential (required when pointing at real GXDCH)
+> NOTE: We use Amazon S3 ourselves. If you need a different backend (GCS, Azure Blob, a custom HTTP PUT service, etc.), implement the `VcPublisher` SPI in a new module and register it as `@Provider` (contributions welcome)
 
 ## Note
 

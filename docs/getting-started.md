@@ -82,6 +82,24 @@ The script creates participants and issues credentials via OID4VCI.
 
 If you've configured `gx-issuer`, the script also seeds a private JWK into the vaults so the issuer can sign credentials for GXDCH. By default it looks for `GXEDC/private-jwk.json` (next to `seed.sh`). Override with `PRIVATE_JWK_PATH=/path/to/key.json ./seed.sh`. Without the file, the GXDCH signing step is skipped and the issuer falls back to local credential signing.
 
+### Generating private-jwk.json from your PEM private key
+
+Use any PEM -> JWK tool. For example with [jose](https://github.com/panva/jose):
+
+```javascript
+import * as jose from "jose";
+import { readFileSync } from "fs";
+
+const PEM_PATH = "./privkey.pem"
+
+const pem = readFileSync(PEM_PATH, "utf8");
+const key = await jose.importPKCS8(pem, "PS256", { extractable: true });
+const jwk = await jose.exportJWK(key);
+jwk.alg = "PS256";
+jwk.kid = "X509-JWK";
+console.log(JSON.stringify(jwk, null, 2));
+```
+
 ## 6. Verify
 
 ```bash
@@ -143,7 +161,7 @@ For Gaia-X testing, you need:
 
 This project **does not** prescribe how to create those artifacts.
 
-## Testing with Gaia-X
+## Hosting requirements for full Gaia-X
 
 For the full end-to-end flow against real GXDCH you need a valid X.509 certificate registered in the Gaia-X Registry (ETSI trust anchors). Setup is outside of the scope of this guide. Please have a look in upstream [Gaia-X Digital Clearing House](https://gaia-x.eu) documentation.
 

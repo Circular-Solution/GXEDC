@@ -40,6 +40,11 @@ These modules are fully generic - they do not know about Gaia-X
         - GxdchClient # HTTP client for GXDCH notary + compliance
         - GxdchCredentialGenerator # CredentialGenerator implementation proxying to GXDCH
         - GxdchIssuerExtension # Registers generator as @Provider (overrides default)
+        - VcPublisher # SPI for publishing issued VCs at dereferenceable URL
+        - NoopVcPublisher # Default no-op publisher when no implementation is wired
+    - gx-issuer-s3/ # Loaded by Identity Hub (requires gx-issuer)
+        - S3VcPublisher # Uploads VCs to S3 via AWS SDK
+        - S3VcPublisherExtension # Registers publisher when bucket is configured
 
 ## DSP authentication flow (OID4VP)
 
@@ -64,7 +69,7 @@ When `gx-issuer` is on the classpath, its `@Provider` overrides the default.
 
 When `GxdchCredentialGenerator` is active, the OID4VCI `/credential` endpoint internally performs the full Gaia-X compliance flow:
 
-![Full Gaia-X GXDCH flow](./images/gaiax_flow.png)
+![Full Gaia-X GXDCH flow](./images/gxdch_flow.png)
 
 ## Policy Enforcement
 
