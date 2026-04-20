@@ -29,6 +29,29 @@ variable "issuer-did" {
   default = "did:web:dataspace-issuer-service%3A10016"
 }
 
+variable "gxdch_public_did" {
+  type        = string
+  default     = ""
+  description = "Publicly-resolvable did:web used for GXDCH signing (leave blank to skip)"
+}
+
+variable "gxdch_domain" {
+  type        = string
+  default     = ""
+  description = "Base URL matching gxdch_public_did (e.g. https://example.com for did:web:example.com). Used to derive per-participant gxdch_base_id"
+}
+
+variable "gxdch_notary_url" {
+  type    = string
+  default = "https://www.delta-dao.com/notary/v2"
+}
+
+variable "gxdch_compliance_url" {
+  type        = string
+  default     = "https://www.delta-dao.com/compliance/v2"
+  description = "GXDCH compliance endpoint"
+}
+
 variable "useSVE" {
   type        = bool
   description = "If true, the -XX:UseSVE=0 switch (Scalable Vector Extensions) will be added to the JAVA_TOOL_OPTIONS. Can help on macOs on Apple Silicon processors"
@@ -53,12 +76,12 @@ variable "rds-master-user" {
 variable "rds-master-password" {
   description = "RDS master password"
   sensitive   = true
-  default     = "CHANGE_ME"
+  default     = ""
 }
 
 variable "gxdch_legal_name" {
   type    = string
-  default = "Zhen Software"
+  default = "Example Company"
 }
 
 variable "gxdch_country_code" {
@@ -70,4 +93,20 @@ variable "gxdch_lei" {
   type        = string
   default     = ""
   description = "LEI code for GXDCH notary registration"
+}
+
+variable "gxdch_verification_method_id" {
+  type        = string
+  default     = "X509-JWK"
+  description = "DID document verification method fragment (e.g. JWK2020-RSA)"
+}
+
+variable "gx_basic_functions_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "gxdch_registry_url" {
+  type    = string
+  default = "https://www.delta-dao.com/registry/v2"
 }

@@ -4,7 +4,12 @@ export DOCKER_HOST := unix://$(HOME)/.colima/default/docker.sock
 
 build:
 	./gradlew -Ppersistence=true dockerize
-	docker build -t gx-basic-functions:latest ../resources/gx-basic-functions
+
+# i forgot to remove the gx functions build
+# but i need it for convenience so i created the below
+build-gxf:
+	./gradlew -Ppersistence=true dockerize
+	docker build -t gx-basic-functions:latest ./gx-basic-functions
 
 deploy:
 	kind create cluster -n cs --config ./deployment/shared/kind.config.yaml

@@ -39,13 +39,16 @@ module "consumer-identityhub" {
     sts-public-key-id = "key-1"
   }
 
-  gxdch_public_did     = "did:web:zhen.software"
-  gxdch_base_id        = "https://zhen.software"
-  gxdch_legal_name     = var.gxdch_legal_name
-  gxdch_country_code   = var.gxdch_country_code
-  gxdch_lei            = var.gxdch_lei
-  gxdch_notary_url     = "http://host.docker.internal:3002"
-  gxdch_compliance_url = "http://host.docker.internal:3001"
+  # im using a unified did for both consumer and provider
+  # but you should replace this
+  gxdch_public_did             = var.gxdch_public_did
+  gxdch_base_id                = var.gxdch_domain
+  gxdch_legal_name             = var.gxdch_legal_name
+  gxdch_country_code           = var.gxdch_country_code
+  gxdch_lei                    = var.gxdch_lei
+  gxdch_notary_url             = var.gxdch_notary_url
+  gxdch_compliance_url         = var.gxdch_compliance_url
+  gxdch_verification_method_id = var.gxdch_verification_method_id
 }
 
 module "consumer-vault" {
