@@ -41,15 +41,29 @@ Both companion repos have a `build.sh` that publishes the modified modules to yo
 Modify `GXEDC/deployment/local/terraform.tfvars`
 
 ```hcl
-rds-host = "URL"
-rds-port = "5432"
-rds-master-user = "USER"
-rds-master-password = "PASSWORD"
+rds-host            = "host.docker.internal"
+rds-port            = "5432"
+rds-master-user     = "postgres"
+rds-master-password = "localdev123"
 
-# Gaia-X metadata used by gx-issuer when calling GXDCH notary (skip this if you seed directly)
-gxdch_lei = "20CHARACTERLEI"
-gxdch_legal_name = "COMPANYNAME"
-gxdch_country_code = "2DIGITCOUNTRYCODE"
+gxdch_lei                    = "" # optional pick one
+gxdch_vat                    = "" # optional pick one
+gxdch_eori                   = "" # optional pick one
+gxdch_euid                   = "" # optional pick one
+gxdch_legal_name             = ""
+gxdch_country_code           = "" # two digit e.g., KR
+gxdch_public_did             = "did:web:example.com"
+gxdch_domain                 = "https://example.com" # we host credentials at a subdomain thats why we needed this
+gxdch_verification_method_id = "JWK2020-RSA" # change to your verificationMethod id
+
+# if you publish the vcs to s3 with gx-issuer-s3
+gxdch_s3_bucket              = ""
+gxdch_s3_region              = ""
+aws_access_key_id     = ""
+aws_secret_access_key = ""
+
+# for strict mode
+gx_basic_functions_enabled = true
 ```
 
 In `deployment/local/consumer.tf` and `provider.tf`,
