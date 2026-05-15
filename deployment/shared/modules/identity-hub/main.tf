@@ -143,25 +143,15 @@ resource "kubernetes_config_map" "identityhub-config" {
     EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED = "false"
     EDC_VAULT_HASHICORP_ALLOW_FALLBACK                = "true"
 
-    EDC_GAIAX_GXDCH_PUBLIC_DID             = var.gxdch_public_did
-    EDC_GAIAX_GXDCH_BASE_ID                = var.gxdch_base_id
-    EDC_GAIAX_GXDCH_LEGAL_NAME             = var.gxdch_legal_name
-    EDC_GAIAX_GXDCH_COUNTRY_CODE           = var.gxdch_country_code
-    EDC_GAIAX_GXDCH_LEI                    = var.gxdch_lei
-    EDC_GAIAX_GXDCH_SIGNING_KEY_ALIAS      = var.gxdch_signing_key_alias
-    EDC_GAIAX_GXDCH_VERIFICATION_METHOD_ID = var.gxdch_verification_method_id
-    EDC_GAIAX_GXDCH_NOTARY_URL             = var.gxdch_notary_url
-    EDC_GAIAX_GXDCH_COMPLIANCE_URL         = var.gxdch_compliance_url
-    EDC_GAIAX_GXDCH_COMPLIANCE_LEVEL       = var.gxdch_compliance_level
-
     EDC_OID4VCI_CREDENTIAL_CONFIG_IDS     = "gx:LabelCredential"
     EDC_OID4VCI_CREDENTIAL_CONFIG_FORMATS = "jwt_vc_json"
     EDC_OID4VCI_CREDENTIAL_CONFIG_SCOPES  = "gx:LabelCredential"
 
-    AWS_ACCESS_KEY_ID         = var.aws_access_key_id
-    AWS_SECRET_ACCESS_KEY     = var.aws_secret_access_key
-    EDC_GAIAX_GXDCH_S3_BUCKET = var.gxdch_s3_bucket
-    EDC_GAIAX_GXDCH_S3_REGION = var.gxdch_s3_region
+    EDC_OID4VP_SIGNING_KEY_ALIAS      = "gxdch-signing-key"
+    EDC_OID4VP_VERIFICATION_METHOD_ID = "JWK2020-RSA"
+
+    EDC_WEB_REST_CORS_ENABLED = "true"
+    EDC_WEB_REST_CORS_HEADERS = "origin, content-type, accept, authorization, x-api-key"
   }
 }
 

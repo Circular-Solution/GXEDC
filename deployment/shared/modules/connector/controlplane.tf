@@ -68,6 +68,10 @@ resource "kubernetes_deployment" "controlplane" {
             container_port = var.ports.debug
             name           = "debug-port"
           }
+          port {
+            container_port = var.ports.oid4vp
+            name           = "oid4vp"
+          }
 
           liveness_probe {
             http_get {
@@ -165,6 +169,8 @@ resource "kubernetes_config_map" "connector-config" {
     WEB_HTTP_CATALOG_PATH                      = "/api/catalog"
     WEB_HTTP_CATALOG_AUTH_TYPE                 = "tokenbased"
     WEB_HTTP_CATALOG_AUTH_KEY                  = "password"
+    WEB_HTTP_OID4VP_PORT                       = var.ports.oid4vp
+    WEB_HTTP_OID4VP_PATH                       = "/api/oid4vp"
     EDC_DSP_CALLBACK_ADDRESS                   = "http://${local.controlplane-service-name}:${var.ports.protocol}/api/dsp"
     EDC_IAM_STS_PRIVATEKEY_ALIAS               = var.aliases.sts-private-key
     EDC_IAM_STS_PUBLICKEY_ID                   = "${var.participantId}#${var.aliases.sts-public-key-id}"
@@ -188,9 +194,13 @@ resource "kubernetes_config_map" "connector-config" {
     EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED = "false"
     EDC_VAULT_HASHICORP_ALLOW_FALLBACK                = "true"
 
-    EDC_OID4VP_IDENTITY_HUB_URL    = "http://${var.humanReadableName}-identityhub:7082/api/credentials"
-    EDC_OID4VP_IDENTITY_HUB_APIKEY = "c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
-    EDC_OID4VP_CREDENTIAL_SCOPE    = "org.eclipse.edc.vc.type:gx:LabelCredential:read"
-    EDC_GAIAX_BASIC_FUNCTIONS_URL  = var.gx_basic_functions_url
+    EDC_WEB_REST_CORS_ENABLED = "true"
+    EDC_WEB_REST_CORS_HEADERS = "origin, content-type, accept, authorization, x-api-key"
+
+    EDC_OID4VP_IDENTITY_HUB_URL     = "http://${var.humanReadableName}-identityhub:7082/api/credentials"
+    EDC_OID4VP_CREDENTIAL_SCOPE     = "org.eclipse.edc.vc.type:gx:LabelCredential:read"
+    EDC_OID4VP_CONNECTOR_PUBLIC_URL = "http://${local.controlplane-service-name}:${var.ports.oid4vp}/api/oid4vp"
+
+    EDC_GAIAX_BASIC_FUNCTIONS_URL = var.gx_basic_functions_url
   }
 }

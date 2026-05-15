@@ -124,6 +124,10 @@ resource "kubernetes_config_map" "dataplane-config" {
     WEB_HTTP_CONTROL_PATH                             = "/api/control"
     WEB_HTTP_PUBLIC_PORT                              = var.ports.public
     WEB_HTTP_PUBLIC_PATH                              = "/api/public"
+    EDC_WEB_REST_CORS_ENABLED                         = "true"
+    EDC_WEB_REST_CORS_ORIGINS                         = "http://localhost:8000"
+    EDC_WEB_REST_CORS_HEADERS                         = "Authorization,Content-Type,X-Api-Key"
+    EDC_WEB_REST_CORS_METHODS                         = "GET,POST,PUT,DELETE,OPTIONS"
     EDC_DATAPLANE_API_PUBLIC_BASEURL                  = "http://${local.dataplane-service-name}:${var.ports.public}/api/public"
     EDC_VAULT_HASHICORP_URL                           = var.vault-url
     EDC_VAULT_HASHICORP_TOKEN                         = var.vault-token

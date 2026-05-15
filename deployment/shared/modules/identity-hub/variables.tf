@@ -82,8 +82,8 @@ variable "aliases" {
     sts-public-key-id = string
   })
   default = {
-    sts-private-key   = "key-1"
-    sts-public-key-id = "key-1"
+    sts-private-key   = "gxdch-signing-key"
+    sts-public-key-id = "JWK2020-RSA"
   }
 }
 
@@ -115,78 +115,4 @@ variable "sts-token-path" {
   description = "path suffix of the STS token API"
   type        = string
   default     = "/api/sts"
-}
-
-variable "gxdch_public_did" {
-  type        = string
-  default     = ""
-  description = "Public DID override (did:web:...) used when signing for GXDCH. Empty = use participantId"
-}
-
-variable "gxdch_base_id" {
-  type        = string
-  default     = "https://example.com"
-  description = "Base URL for self-signed credential IDs"
-}
-
-variable "gxdch_legal_name" {
-  type    = string
-  default = "Example Company"
-}
-
-variable "gxdch_country_code" {
-  type    = string
-  default = "KR"
-}
-
-variable "gxdch_lei" {
-  type    = string
-  default = ""
-}
-
-variable "gxdch_signing_key_alias" {
-  type    = string
-  default = "gxdch-signing-key"
-}
-
-variable "gxdch_verification_method_id" {
-  type    = string
-  default = "X509-JWK"
-}
-
-variable "gxdch_notary_url" {
-  type    = string
-  default = "https://registrationnumber.notary.lab.gaia-x.eu/v2"
-}
-
-variable "gxdch_compliance_url" {
-  type    = string
-  default = "https://compliance.lab.gaia-x.eu/v2"
-}
-
-variable "gxdch_compliance_level" {
-  type    = string
-  default = "standard-compliance"
-}
-
-variable "aws_access_key_id" {
-  type      = string
-  default   = ""
-  sensitive = true
-}
-
-variable "aws_secret_access_key" {
-  type      = string
-  default   = ""
-  sensitive = true
-}
-
-variable "gxdch_s3_bucket" {
-  type    = string
-  default = ""
-}
-
-variable "gxdch_s3_region" {
-  type    = string
-  default = "ap-northeast-2"
 }

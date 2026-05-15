@@ -22,3 +22,4 @@ bin/
 build/
 private-jwk.json
 gx-basic-functions
+seed-credential.jwt

@@ -52,6 +52,7 @@ variable "ports" {
     catalog    = number
     debug      = number
     public     = number
+    oid4vp     = number
   })
   default = {
     web        = 8080
@@ -61,6 +62,7 @@ variable "ports" {
     catalog    = 8084
     debug      = 1044
     public     = 11002
+    oid4vp     = 11003
   }
 }
 
@@ -99,8 +101,8 @@ variable "aliases" {
     sts-public-key-id = string
   })
   default = {
-    sts-private-key   = "key-1"
-    sts-public-key-id = "key-1"
+    sts-private-key   = "gxdch-signing-key"
+    sts-public-key-id = "JWK2020-RSA"
   }
 }
 

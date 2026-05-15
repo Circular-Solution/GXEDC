@@ -13,11 +13,7 @@ module "provider-connector" {
   useSVE                 = var.useSVE
   participant-list-file  = "../shared/assets/participants/participants.local.json"
   gx_basic_functions_url = module.gx_basic_functions.service_url
-  aliases = {
-    sts-private-key   = "key-1"
-    sts-public-key-id = "key-1"
-  }
-  depends_on = [kubernetes_job.rds-init]
+  depends_on             = [kubernetes_job.rds-init]
 }
 
 module "provider-identityhub" {
@@ -34,24 +30,6 @@ module "provider-identityhub" {
     url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_identity_edc"
   }
   useSVE = var.useSVE
-  aliases = {
-    sts-private-key   = "key-1"
-    sts-public-key-id = "key-1"
-  }
-
-  gxdch_public_did             = var.gxdch_public_did
-  gxdch_base_id                = var.gxdch_domain
-  gxdch_legal_name             = var.gxdch_legal_name
-  gxdch_country_code           = var.gxdch_country_code
-  gxdch_lei                    = var.gxdch_lei
-  gxdch_notary_url             = var.gxdch_notary_url
-  gxdch_compliance_url         = var.gxdch_compliance_url
-  gxdch_verification_method_id = var.gxdch_verification_method_id
-  gxdch_s3_bucket              = var.gxdch_s3_bucket
-  gxdch_s3_region              = var.gxdch_s3_region
-
-  aws_access_key_id     = var.aws_access_key_id
-  aws_secret_access_key = var.aws_secret_access_key
 }
 
 module "provider-catalog-server" {
@@ -67,11 +45,7 @@ module "provider-catalog-server" {
     password = var.rds-master-password
     url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_catalogserver_edc"
   }
-  useSVE = var.useSVE
-  aliases = {
-    sts-private-key   = "key-1"
-    sts-public-key-id = "key-1"
-  }
+  useSVE     = var.useSVE
   depends_on = [kubernetes_job.rds-init]
 }
 

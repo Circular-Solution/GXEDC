@@ -51,6 +51,10 @@ resource "kubernetes_service" "controlplane-service" {
       name = "control"
       port = var.ports.control
     }
+    port {
+      name = "oid4vp"
+      port = var.ports.oid4vp
+    }
   }
 }
 

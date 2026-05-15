@@ -21,11 +21,6 @@ plugins {
 
 dependencies {
     runtimeOnly(project(":extensions:superuser-seed"))
-    runtimeOnly(project(":extensions:gx-issuer"))
-    runtimeOnly(project(":extensions:gx-issuer-s3"))
-    implementation(libs.edc.ih.spi) // needed in the extensions here
-    implementation(libs.edc.ih.spi.credentials) // needed in the extensions here
-
     runtimeOnly(libs.edc.bom.identityhub.oid4vp)
     runtimeOnly(libs.edc.aes.encryption)
     if (project.properties.getOrDefault("persistence", "false") == "true") {
