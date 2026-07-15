@@ -9,13 +9,14 @@ This project depends on two companion repositories with custom EDC extensions
 - **[Connector](https://github.com/yamazhen/Connector)** - fork of [eclipse-edc/Connector](https://github.com/eclipse-edc/Connector) with an OID4VP-based `IdentityService` (replaces DCP for DSP authentication).
 - **[IdentityHub](https://github.com/yamazhen/IdentityHub)** - fork of [eclipse-edc/IdentityHub](https://github.com/eclipse-edc/IdentityHub) with OID4VP presentation API and OID4VCI issuer/holder protocols.
 
-Both are built and published to Maven local, then consumed by this project.
+Both are built and published to Maven local, then consumed by this project. All three repos use [just](https://github.com/casey/just) for their build/deploy recipes (`just build`, `just deploy`) - make sure it is installed.
 
 ## What this repo contains
-- **`extensions/`** - Gaia-X addon extensions
-    - `gx-impl` - `GaiaXLabelCredential` and `GaiaXLabelLevel` policy functions (loaded by the Connector)
-    - `gx-issuer` - `GxdchCredentialGenerator` and `VcPublisher` SPI (loaded by the Identity Hub)
-    - `gx-issuer-s3` - `S3VcPublisher` implementation of `VcPublisher` for publishing issued VCs on Amazon S3
+- **`extensions/`** - GXEDC extensions
+    - `gx-impl` - `GaiaXCredentialValidator` plus `GaiaXLabelCredential` and `GaiaXLabelLevel` policy functions (loaded by the Connector)
+    - `superuser-seed` - bootstraps the Identity Hub super-user participant context
+    - `catalog-node-resolver` - federated catalog target node directory
+    - `dataplane-public-api` - public data-plane HTTP controller
 - **`launchers/`** - Runtimes for controlplane, dataplane, identity-hub, catalog-server, issuer-service
 - **`deployment/`** - Terraform modules for kind (local) and production infrastructure
 
@@ -28,12 +29,12 @@ Both are built and published to Maven local, then consumed by this project.
 | [configuration](./docs/configuration.md) | Env vars and `@Setting` keys |
 | [status](./docs/status.md) | Feature statuses |
 
-## Three deployment modes
+## Two deployment modes
 
-1. **Pure OID4VC** - OID4VP for DSP auth, OID4VCI for credential issuance. No Gaia-X. Drop `gx-impl` + `gx-issuer` + `gx-issuer-s3`.
-2. **OID4VC + Gaia-X policy** - keep `gx-impl` for policy. Seed credentials manually.
-3. **Full Gaia-X** - keep both. OID4VCI auto-issues credentials via GXDCH (notary + compliance). Add `gx-issuer-s3` (or another `VcPublisher` implementation) if you need strict mode where `gx-basic-functions` verifies SRI hashes of each compliant credential (required when pointing at real GXDCH)
-> NOTE: We use Amazon S3 ourselves. If you need a different backend (GCS, Azure Blob, a custom HTTP PUT service, etc.), implement the `VcPublisher` SPI in a new module and register it as `@Provider` (contributions welcome)
+1. **Pure OID4VC** - OID4VP for DSP auth, OID4VCI for credential issuance. No Gaia-X. Drop `gx-impl`.
+2. **OID4VC + Gaia-X policy** - keep `gx-impl` for `gx:LabelCredential` validation and policy enforcement. Gaia-X credentials are obtained from a GXDCH out-of-band and loaded into the Identity Hub (see the seed script), optionally verified remotely via `gx-basic-functions`.
+
+> The former `gx-issuer` / `gx-issuer-s3` extensions (in-connector GXDCH proxying and VC publishing) have been removed - credentials are now issued/obtained outside the connector and seeded in.
 
 ## Note
 

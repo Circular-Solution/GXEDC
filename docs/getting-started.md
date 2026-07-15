@@ -10,8 +10,11 @@ This guide walks through setting up a local kind-based development environment.
 - `terraform`
 - JDK 17+
 - `jq`
+- [just](https://github.com/casey/just)
 
-> **Windows users**: use WSL2. The seed script is bash and the Makefile uses `make` - both require a Unix environment. All commands in this guide assume a bash/zsh shell. Install Docker Desktop with WSL2 integration enabled, then run everything from inside WSL2 or you could modify the scripts for Windows.
+> This project uses `just` (a `make` replacement) for build and deploy recipes - there is no Makefile. Install it via your package manager (`brew install just`, `apt install just`, `cargo install just`) before running the steps below.
+
+> **Windows users**: use WSL2. The seed script is bash and the build recipes use `just` - both require a Unix environment. All commands in this guide assume a bash/zsh shell. Install Docker Desktop with WSL2 integration enabled, then run everything from inside WSL2 or you could modify the scripts for Windows.
 
 ## Host Entries
 
@@ -34,7 +37,7 @@ The three repos should be cloned side-by-side:
 
 ## 1. Build the EDC extensions
 
-Both companion repos have a `build.sh` that publishes the modified modules to your local Maven Repository (`~/.m2`). Make sure to build the companion repos before we build the main one
+Both companion repos have a `justfile` whose `just build` publishes the modified modules to your local Maven Repository (`~/.m2`). Make sure to build the companion repos before we build the main one
 
 ## 2. Configure deployment
 
@@ -46,28 +49,12 @@ rds-port            = "5432"
 rds-master-user     = "postgres"
 rds-master-password = "localdev123"
 
-gxdch_lei                    = "" # optional pick one
-gxdch_vat                    = "" # optional pick one
-gxdch_eori                   = "" # optional pick one
-gxdch_euid                   = "" # optional pick one
-gxdch_legal_name             = ""
-gxdch_country_code           = "" # two digit e.g., KR
-gxdch_public_did             = "did:web:example.com"
-gxdch_domain                 = "https://example.com" # we host credentials at a subdomain thats why we needed this
-gxdch_verification_method_id = "JWK2020-RSA" # change to your verificationMethod id
-
-# if you publish the vcs to s3 with gx-issuer-s3
-gxdch_s3_bucket              = ""
-gxdch_s3_region              = ""
-aws_access_key_id     = ""
-aws_secret_access_key = ""
-
-# for strict mode
-gx_basic_functions_enabled = true
+# optional: URL of an externally hosted gx-basic-functions service
+# for remote SHACL / trust chain validation. Empty = local checks only.
+gx_basic_functions_url = ""
 ```
 
-In `deployment/local/consumer.tf` and `provider.tf`,
-set `gxdch_public_did` and `gxdch_base_id` to your public-resolvable DID and domain. See [Testing with Gaia-X](#testing-with-gaia-x) below
+Participant DIDs default to the in-cluster `did:web:consumer-identityhub%3A7083` / `did:web:provider-identityhub%3A7083`; override `consumer-did` / `provider-did` / `issuer-did` for publicly-resolvable DIDs.
 
 See [configuration.md](./configuration.md) for full list of variables.
 
@@ -82,19 +69,21 @@ docker compose up -d
 ## 4. Build and deploy
 ```bash
 cd GXEDC
-make build # builds all the images we need
-make deploy
+just build # builds all the images we need
+just deploy
 ```
 
-> Or you could run the commands directly in `GXEDC/Makefile`
+> Or you could run the commands directly from `GXEDC/justfile`
 
 ## 5. Seed
 
 run the `seed.sh` in `GXEDC`
 
-The script creates participants and issues credentials via OID4VCI.
+The script:
 
-If you've configured `gx-issuer`, the script also seeds a private JWK into the vaults so the issuer can sign credentials for GXDCH. By default it looks for `GXEDC/private-jwk.json` (next to `seed.sh`). Override with `PRIVATE_JWK_PATH=/path/to/key.json ./seed.sh`. Without the file, the GXDCH signing step is skipped and the issuer falls back to local credential signing.
+1. Seeds a private RSA JWK into the consumer/provider vaults (alias `gxdch-signing-key`) - this is the participants' signing key, published in their DID documents as verification method `JWK2020-RSA`. It looks for `GXEDC/private-jwk.json` (next to `seed.sh`); override with `PRIVATE_JWK_PATH=/path/to/key.json ./seed.sh`. The script fails without it.
+2. Creates the consumer and provider participant contexts in their Identity Hubs.
+3. Loads a pre-issued `gx:LabelCredential` from `GXEDC/seed-credential.jwt` into each participant (override with `SEED_CREDENTIAL_PATH`). The credential is obtained from a GXDCH out-of-band - this repo no longer proxies GXDCH issuance.
 
 ### Generating private-jwk.json from your PEM private key
 
@@ -110,7 +99,7 @@ const pem = readFileSync(PEM_PATH, "utf8");
 const key = await jose.importPKCS8(pem, "PS256", { extractable: true });
 const jwk = await jose.exportJWK(key);
 jwk.alg = "PS256";
-jwk.kid = "X509-JWK";
+jwk.kid = "JWK2020-RSA";
 console.log(JSON.stringify(jwk, null, 2));
 ```
 
@@ -164,19 +153,19 @@ Example of LabelCredential Policy Check:
 
 Each participant needs a DID, a key pair, and (for Gaia-X) an approved X.509 Certificate
 
-For local-only testing without Gaia-X the kind cluster auto-generates EC keys and uses internal `did:web` DIDs (`did:web:consumer-identityhub%3A7083` etc.). These resolve via k8s DNS and don't work outside the cluster
+For local-only testing without Gaia-X the kind cluster uses internal `did:web` DIDs (`did:web:consumer-identityhub%3A7083` etc.). These resolve via k8s DNS and don't work outside the cluster
 
 For Gaia-X testing, you need:
 
 1. A **publicly-resolvable `did:web` document** hosted at a domain you control.
 2. An **X.509 certificate** for that domain (Let's Encrypt works in dev).
 3. The public key (JWK format) embedded in the DID document under `verificationMethod` with type `JsonWebKey2020` and `x5u` pointing to your cert chain.
-4. The matching private key in JWK format
+4. The matching private key in JWK format (this becomes `private-jwk.json` for the seed script)
 
 This project **does not** prescribe how to create those artifacts.
 
-## Hosting requirements for full Gaia-X
+## Obtaining Gaia-X credentials
 
-For the full end-to-end flow against real GXDCH you need a valid X.509 certificate registered in the Gaia-X Registry (ETSI trust anchors). Setup is outside of the scope of this guide. Please have a look in upstream [Gaia-X Digital Clearing House](https://gaia-x.eu) documentation.
+The `gx:LabelCredential` loaded by the seed script must come from a GXDCH (notary + compliance). For real Gaia-X compliance you need a valid X.509 certificate registered in the Gaia-X Registry (ETSI trust anchors) - see the upstream [Gaia-X Digital Clearing House](https://gaia-x.eu) documentation. Request the credential from the GXDCH with your participant DID as subject, save it as `seed-credential.jwt`, and re-run the seed.
 
-For local development with a Let's Encrypt cert, you can run the `gx-compliance`, `gaia-x-notary-registrationnumber`, and `gx-registry` services yourself and point the connector at them via `gxdch_notary_url` / `gxdch_compliance_url`. How to run those services is documented in their respective upstream repos.
+For remote validation of seeded credentials (SHACL + trust chain), host a `gx-basic-functions` service and point `gx_basic_functions_url` at it.
