@@ -144,7 +144,7 @@ resource "kubernetes_config_map" "identityhub-config" {
     EDC_VAULT_HASHICORP_ALLOW_FALLBACK                = "true"
 
     EDC_OID4VCI_CREDENTIAL_CONFIG_IDS     = "gx:LabelCredential"
-    EDC_OID4VCI_CREDENTIAL_CONFIG_FORMATS = "jwt_vc_json"
+    EDC_OID4VCI_CREDENTIAL_CONFIG_FORMATS = "vc+jwt"
     EDC_OID4VCI_CREDENTIAL_CONFIG_SCOPES  = "gx:LabelCredential"
 
     EDC_OID4VP_SIGNING_KEY_ALIAS      = "gxdch-signing-key"

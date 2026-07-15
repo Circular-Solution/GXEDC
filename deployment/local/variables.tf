@@ -56,13 +56,7 @@ variable "rds-master-password" {
   default     = ""
 }
 
-variable "gx_basic_functions_enabled" {
-  type    = bool
-  default = false
-}
-
-variable "gxdch_registry_url" {
-  type        = string
-  default     = "https://www.delta-dao.com/registry/v2"
-  description = "GXDCH registry URL used by gx-basic-functions for runtime trust-chain checks"
+variable "gx_basic_functions_url" {
+  type    = string
+  description = "Production Gaia-X Basic Functions URL"
 }

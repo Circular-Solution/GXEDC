@@ -12,7 +12,7 @@ module "consumer-connector" {
   sts-token-url          = "${module.consumer-identityhub.sts-token-url}/token"
   useSVE                 = var.useSVE
   participant-list-file  = "../shared/assets/participants/participants.local.json"
-  gx_basic_functions_url = module.gx_basic_functions.service_url
+  gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
 }
 

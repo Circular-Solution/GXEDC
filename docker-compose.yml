@@ -1,14 +1,14 @@
 services:
   postgres:
-    container_name: postgres-edc
+    container_name: edc_pg
     image: postgres:17.4
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: localdev123
+      POSTGRES_USER: cs
+      POSTGRES_PASSWORD: cs
     ports:
       - "5432:5432"
     volumes:
-      - "postgres_data:/var/lib/postgresql/data"
+      - "edc_data:/var/lib/postgresql/data"
 
 volumes:
-  postgres_data:
+  edc_data:
