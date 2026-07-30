@@ -116,3 +116,9 @@ variable "sts-token-path" {
   type        = string
   default     = "/api/sts"
 }
+
+variable "node-port-base" {
+  type        = number
+  default     = null
+  description = "Pins NodePorts for host-level reverse proxies: identity API = base+71, credentials API = base+72, did = base+73. Null lets Kubernetes assign them."
+}

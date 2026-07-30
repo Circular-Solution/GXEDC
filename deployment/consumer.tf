@@ -14,6 +14,7 @@ module "consumer-connector" {
   participant-list-file  = "./assets/participants/participants.local.json"
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
+  node-port-base         = 32000
 }
 
 module "consumer-identityhub" {
@@ -28,8 +29,9 @@ module "consumer-identityhub" {
     password = var.rds-master-password
     url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_consumer_edc"
   }
-  namespace = kubernetes_namespace.ns.metadata.0.name
-  useSVE    = var.useSVE
+  namespace      = kubernetes_namespace.ns.metadata.0.name
+  useSVE         = var.useSVE
+  node-port-base = 32000
 }
 
 module "consumer-vault" {

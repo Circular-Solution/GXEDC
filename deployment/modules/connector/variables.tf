@@ -128,3 +128,9 @@ locals {
   controlplane-service-name = "${var.humanReadableName}-controlplane"
   dataplane-service-name    = "${var.humanReadableName}-dataplane"
 }
+
+variable "node-port-base" {
+  type        = number
+  default     = null
+  description = "Pins NodePorts for host-level reverse proxies: management = base+81, protocol = base+82, dataplane public = base+92. Null lets Kubernetes assign them."
+}

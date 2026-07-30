@@ -32,16 +32,18 @@ resource "kubernetes_service" "controlplane-service" {
       port = var.ports.web
     }
     port {
-      name = "management"
-      port = var.ports.management
+      name      = "management"
+      port      = var.ports.management
+      node_port = var.node-port-base == null ? null : var.node-port-base + 81
     }
     port {
       name = "catalog"
       port = var.ports.catalog
     }
     port {
-      name = "protocol"
-      port = var.ports.protocol
+      name      = "protocol"
+      port      = var.ports.protocol
+      node_port = var.node-port-base == null ? null : var.node-port-base + 82
     }
     port {
       name = "debug"
@@ -73,8 +75,9 @@ resource "kubernetes_service" "dataplane-service" {
       port = var.ports.control
     }
     port {
-      name = "public"
-      port = var.ports.public
+      name      = "public"
+      port      = var.ports.public
+      node_port = var.node-port-base == null ? null : var.node-port-base + 92
     }
   }
 }

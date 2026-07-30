@@ -14,6 +14,7 @@ module "provider-connector" {
   participant-list-file  = "./assets/participants/participants.local.json"
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
+  node-port-base         = 32100
 }
 
 module "provider-identityhub" {
@@ -29,7 +30,8 @@ module "provider-identityhub" {
     password = var.rds-master-password
     url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_identity_edc"
   }
-  useSVE = var.useSVE
+  useSVE         = var.useSVE
+  node-port-base = 32100
 }
 
 module "provider-catalog-server" {
