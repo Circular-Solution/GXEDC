@@ -12,6 +12,9 @@ deploy-kind:
 	cd ./deployment && terraform init && terraform apply --auto-approve
 
 destroy:
+	terraform -chdir=deployment destroy
+
+destroy-kind:
 	kind delete cluster -n cs
 
 seed jwt:
