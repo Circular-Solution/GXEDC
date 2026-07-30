@@ -10,5 +10,6 @@ module "dataspace-issuer" {
   vault-url  = "http://provider-vault:8200"
   namespace  = kubernetes_namespace.ns.metadata.0.name
   useSVE     = var.useSVE
-  depends_on = [kubernetes_job.rds-init]
+  depends_on = [module.provider-vault, kubernetes_job.rds-init]
+  use-https  = var.use-https
 }

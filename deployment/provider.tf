@@ -15,6 +15,7 @@ module "provider-connector" {
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
   node-port-base         = 32100
+  use-https              = var.use-https
 }
 
 module "provider-identityhub" {
@@ -32,6 +33,7 @@ module "provider-identityhub" {
   }
   useSVE         = var.useSVE
   node-port-base = 32100
+  use-https      = var.use-https
 }
 
 module "provider-catalog-server" {
@@ -49,6 +51,7 @@ module "provider-catalog-server" {
   }
   useSVE     = var.useSVE
   depends_on = [kubernetes_job.rds-init]
+  use-https  = var.use-https
 }
 
 module "provider-vault" {

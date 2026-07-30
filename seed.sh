@@ -4,8 +4,13 @@ set -e
 API_KEY="c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
 NAMESPACE="cs"
 
-CONSUMER_DID="did:web:consumer-identityhub%3A7083"
-PROVIDER_DID="did:web:provider-identityhub%3A7083"
+CONSUMER_DID="${CONSUMER_DID:-did:web:consumer-identityhub%3A7083}"
+PROVIDER_DID="${PROVIDER_DID:-did:web:provider-identityhub%3A7083}"
+
+# private JWK (JSON) whose public half is published as <did>#key-1 in the hosted DID document.
+# Empty = let the Identity Hub generate a keypair and publish it in its own DID document.
+CONSUMER_KEY="${CONSUMER_KEY:-}"
+PROVIDER_KEY="${PROVIDER_KEY:-}"
 
 GX_JWT="${GX_JWT:-}"
 
@@ -13,6 +18,7 @@ create_participant() {
   local name=$1
   local ih_host=$2
   local did=$3
+  local private_key=$5
   local ih_internal=$4
 
   local encoded_did
@@ -23,12 +29,27 @@ create_participant() {
     "http://$ih_host/api/identity/v1alpha/participants/$encoded_did" \
     -H "x-api-key: $API_KEY" || true
 
+  local key_spec
+  if [ -n "$private_key" ]; then
+    echo "Importing provided signing key for $name..."
+    kubectl exec -n $NAMESPACE ${name}-vault-0 -- sh -c \
+      "VAULT_TOKEN=root VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/key-1 content='$private_key'" >/dev/null
+    key_spec=$(jq -n --arg did "$did" \
+      --argjson public_jwk "$(echo "$private_key" | jq -c 'del(.d, .p, .q, .dp, .dq, .qi)')" \
+      '{keyId: "\($did)#key-1", privateKeyAlias: "key-1", publicKeyJwk: $public_jwk}')
+  else
+    key_spec=$(jq -n --arg did "$did" \
+      '{keyId: "\($did)#key-1", privateKeyAlias: "key-1",
+        keyGeneratorParams: {algorithm: "EdDSA", curve: "Ed25519"}}')
+  fi
+
   local body
   body=$(jq -n \
     --arg did "$did" \
     --arg encoded_did "$encoded_did" \
     --arg name "$name" \
     --arg ih_internal "$ih_internal" \
+    --argjson key "$key_spec" \
     '{
       roles: [],
       serviceEndpoints: [{
@@ -40,14 +61,7 @@ create_participant() {
       participantContextId: $did,
       participantId: $did,
       did: $did,
-      key: {
-        keyId: "\($did)#key-1",
-        privateKeyAlias: "key-1",
-        keyGeneratorParams: {
-          algorithm: "EdDSA",
-          curve: "Ed25519"
-        }
-      }
+      key: $key
     }')
 
   local response
@@ -146,8 +160,8 @@ load_credential() {
   fi
 }
 
-create_participant "consumer" "consumer.local" "$CONSUMER_DID" "consumer-identityhub"
-create_participant "provider" "provider.local" "$PROVIDER_DID" "provider-identityhub"
+create_participant "consumer" "consumer.local" "$CONSUMER_DID" "consumer-identityhub" "$CONSUMER_KEY"
+create_participant "provider" "provider.local" "$PROVIDER_DID" "provider-identityhub" "$PROVIDER_KEY"
 
 load_credential "consumer" "consumer.local" "$CONSUMER_DID"
 load_credential "provider" "provider.local" "$PROVIDER_DID"

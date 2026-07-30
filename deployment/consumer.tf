@@ -15,6 +15,7 @@ module "consumer-connector" {
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
   node-port-base         = 32000
+  use-https              = var.use-https
 }
 
 module "consumer-identityhub" {
@@ -32,6 +33,7 @@ module "consumer-identityhub" {
   namespace      = kubernetes_namespace.ns.metadata.0.name
   useSVE         = var.useSVE
   node-port-base = 32000
+  use-https      = var.use-https
 }
 
 module "consumer-vault" {
