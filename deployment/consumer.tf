@@ -16,6 +16,7 @@ module "consumer-connector" {
   depends_on             = [kubernetes_job.rds-init]
   node-port-base         = 32000
   use-https              = var.use-https
+  dataplane-public-url   = var.consumer-dataplane-public-url
 }
 
 module "consumer-identityhub" {

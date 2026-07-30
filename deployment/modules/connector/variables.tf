@@ -134,3 +134,9 @@ variable "node-port-base" {
   default     = null
   description = "Pins NodePorts for host-level reverse proxies: management = base+81, protocol = base+82, dataplane public = base+92. Null lets Kubernetes assign them."
 }
+
+variable "dataplane-public-url" {
+  type        = string
+  default     = ""
+  description = "Publicly reachable base URL of this data plane, e.g. https://provider.edc.example.com. Empty uses the in-cluster service URL."
+}

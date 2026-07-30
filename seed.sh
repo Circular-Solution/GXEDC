@@ -4,6 +4,9 @@ set -e
 API_KEY="c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
 NAMESPACE="cs"
 
+CONSUMER_IH_URL="${CONSUMER_IH_URL:-http://consumer.local}"
+PROVIDER_IH_URL="${PROVIDER_IH_URL:-http://provider.local}"
+
 CONSUMER_DID="${CONSUMER_DID:-did:web:consumer-identityhub%3A7083}"
 PROVIDER_DID="${PROVIDER_DID:-did:web:provider-identityhub%3A7083}"
 
@@ -16,7 +19,7 @@ GX_JWT="${GX_JWT:-}"
 
 create_participant() {
   local name=$1
-  local ih_host=$2
+  local ih_url=$2
   local did=$3
   local private_key=$5
   local ih_internal=$4
@@ -26,7 +29,7 @@ create_participant() {
 
   echo "Creating $name participant..."
   curl -s -o /dev/null -X DELETE \
-    "http://$ih_host/api/identity/v1alpha/participants/$encoded_did" \
+    "$ih_url/api/identity/v1alpha/participants/$encoded_did" \
     -H "x-api-key: $API_KEY" || true
 
   local key_spec
@@ -65,7 +68,7 @@ create_participant() {
     }')
 
   local response
-  response=$(curl -s --location "http://$ih_host/api/identity/v1alpha/participants/" \
+  response=$(curl -s --location "$ih_url/api/identity/v1alpha/participants/" \
     --header 'Content-Type: application/json' \
     --header "x-api-key: $API_KEY" \
     --data "$body")
@@ -83,7 +86,7 @@ create_participant() {
 
 load_credential() {
   local name=$1
-  local ih_host=$2
+  local ih_url=$2
   local did=$3
 
   if [ -z "$GX_JWT" ]; then
@@ -151,7 +154,7 @@ load_credential() {
 
   local response_code
   response_code=$(curl -s -o /tmp/cred-load-resp -w "%{http_code}" \
-    -X POST "http://$ih_host/api/identity/v1alpha/participants/$encoded_did/credentials" \
+    -X POST "$ih_url/api/identity/v1alpha/participants/$encoded_did/credentials" \
     -H "Content-Type: application/json" \
     -H "x-api-key: $API_KEY" \
     -d "$body")
@@ -160,11 +163,11 @@ load_credential() {
   fi
 }
 
-create_participant "consumer" "consumer.local" "$CONSUMER_DID" "consumer-identityhub" "$CONSUMER_KEY"
-create_participant "provider" "provider.local" "$PROVIDER_DID" "provider-identityhub" "$PROVIDER_KEY"
+create_participant "consumer" "$CONSUMER_IH_URL" "$CONSUMER_DID" "consumer-identityhub" "$CONSUMER_KEY"
+create_participant "provider" "$PROVIDER_IH_URL" "$PROVIDER_DID" "provider-identityhub" "$PROVIDER_KEY"
 
-load_credential "consumer" "consumer.local" "$CONSUMER_DID"
-load_credential "provider" "provider.local" "$PROVIDER_DID"
+load_credential "consumer" "$CONSUMER_IH_URL" "$CONSUMER_DID"
+load_credential "provider" "$PROVIDER_IH_URL" "$PROVIDER_DID"
 
 echo "Restarting deployments..."
 for dep in consumer-controlplane consumer-dataplane provider-controlplane provider-dataplane provider-catalog-server; do

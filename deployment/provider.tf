@@ -16,6 +16,7 @@ module "provider-connector" {
   depends_on             = [kubernetes_job.rds-init]
   node-port-base         = 32100
   use-https              = var.use-https
+  dataplane-public-url   = var.provider-dataplane-public-url
 }
 
 module "provider-identityhub" {
