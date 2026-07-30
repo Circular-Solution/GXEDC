@@ -18,7 +18,7 @@ Both are built and published to Maven local, then consumed by this project. All 
     - `catalog-node-resolver` - federated catalog target node directory
     - `dataplane-public-api` - public data-plane HTTP controller
 - **`launchers/`** - Runtimes for controlplane, dataplane, identity-hub, catalog-server, issuer-service
-- **`deployment/`** - Terraform modules for kind (local) and production infrastructure
+- **`deployment/`** - Terraform for the local kind deployment (adapt the values in `terraform.tfvars` for other environments)
 
 ## Documentation
 

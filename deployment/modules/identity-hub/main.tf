@@ -150,6 +150,9 @@ resource "kubernetes_config_map" "identityhub-config" {
     EDC_OID4VP_SIGNING_KEY_ALIAS      = "gxdch-signing-key"
     EDC_OID4VP_VERIFICATION_METHOD_ID = "JWK2020-RSA"
 
+    EDC_OID4VCI_SIGNING_KEY_ALIAS      = "gxdch-signing-key"
+    EDC_OID4VCI_VERIFICATION_METHOD_ID = "JWK2020-RSA"
+
     EDC_WEB_REST_CORS_ENABLED = "true"
     EDC_WEB_REST_CORS_HEADERS = "origin, content-type, accept, authorization, x-api-key"
   }

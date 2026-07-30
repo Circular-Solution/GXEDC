@@ -64,7 +64,7 @@ Active only when `gx-impl` extension is loaded.
 
 ## Terraform variables
 
-`deployment/local/terraform.tfvars`:
+`deployment/terraform.tfvars`:
 
 | Variable | Description |
 |---|---|

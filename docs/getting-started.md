@@ -41,7 +41,7 @@ Both companion repos have a `justfile` whose `just build` publishes the modified
 
 ## 2. Configure deployment
 
-Modify `GXEDC/deployment/local/terraform.tfvars`
+Modify `GXEDC/deployment/terraform.tfvars`
 
 ```hcl
 rds-host            = "host.docker.internal"

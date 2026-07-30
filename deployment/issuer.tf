@@ -1,5 +1,5 @@
 module "dataspace-issuer" {
-  source            = "../shared/modules/issuer"
+  source            = "./modules/issuer"
   humanReadableName = "dataspace-issuer-service"
   participantId     = var.issuer-did
   database = {

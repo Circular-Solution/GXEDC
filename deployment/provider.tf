@@ -1,5 +1,5 @@
 module "provider-connector" {
-  source            = "../shared/modules/connector"
+  source            = "./modules/connector"
   humanReadableName = "provider"
   participantId     = var.provider-did
   database = {
@@ -11,14 +11,14 @@ module "provider-connector" {
   vault-url              = "http://provider-vault:8200"
   sts-token-url          = "${module.provider-identityhub.sts-token-url}/token"
   useSVE                 = var.useSVE
-  participant-list-file  = "../shared/assets/participants/participants.local.json"
+  participant-list-file  = "./assets/participants/participants.local.json"
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
 }
 
 module "provider-identityhub" {
   depends_on        = [module.provider-vault, kubernetes_job.rds-init]
-  source            = "../shared/modules/identity-hub"
+  source            = "./modules/identity-hub"
   humanReadableName = "provider-identityhub"
   participantId     = var.provider-did
   vault-url         = "http://provider-vault:8200"
@@ -33,13 +33,13 @@ module "provider-identityhub" {
 }
 
 module "provider-catalog-server" {
-  source                = "../shared/modules/catalog-server"
+  source                = "./modules/catalog-server"
   humanReadableName     = "provider-catalog-server"
   participantId         = var.provider-did
   namespace             = kubernetes_namespace.ns.metadata.0.name
   vault-url             = "http://provider-vault:8200"
   sts-token-url         = "${module.provider-identityhub.sts-token-url}/token"
-  participant-list-file = "../shared/assets/participants/participants.local.json"
+  participant-list-file = "./assets/participants/participants.local.json"
   database = {
     user     = var.rds-master-user
     password = var.rds-master-password
@@ -50,7 +50,7 @@ module "provider-catalog-server" {
 }
 
 module "provider-vault" {
-  source            = "../shared/modules/vault"
+  source            = "./modules/vault"
   humanReadableName = "provider-vault"
   namespace         = kubernetes_namespace.ns.metadata.0.name
 }

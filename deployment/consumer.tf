@@ -1,5 +1,5 @@
 module "consumer-connector" {
-  source            = "../shared/modules/connector"
+  source            = "./modules/connector"
   humanReadableName = "consumer"
   participantId     = var.consumer-did
   database = {
@@ -11,14 +11,14 @@ module "consumer-connector" {
   namespace              = kubernetes_namespace.ns.metadata.0.name
   sts-token-url          = "${module.consumer-identityhub.sts-token-url}/token"
   useSVE                 = var.useSVE
-  participant-list-file  = "../shared/assets/participants/participants.local.json"
+  participant-list-file  = "./assets/participants/participants.local.json"
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
 }
 
 module "consumer-identityhub" {
   depends_on        = [module.consumer-vault, kubernetes_job.rds-init]
-  source            = "../shared/modules/identity-hub"
+  source            = "./modules/identity-hub"
   humanReadableName = "consumer-identityhub"
   participantId     = var.consumer-did
   vault-url         = "http://consumer-vault:8200"
@@ -33,7 +33,7 @@ module "consumer-identityhub" {
 }
 
 module "consumer-vault" {
-  source            = "../shared/modules/vault"
+  source            = "./modules/vault"
   humanReadableName = "consumer-vault"
   namespace         = kubernetes_namespace.ns.metadata.0.name
 }
