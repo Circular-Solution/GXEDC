@@ -23,6 +23,7 @@ dependencies {
     runtimeOnly(libs.edc.bom.controlplane.oid4vp)
     runtimeOnly(project(":extensions:catalog-node-resolver"))
     runtimeOnly(project(":extensions:gx-impl"))
+    runtimeOnly(project(":extensions:access-policy"))
     runtimeOnly(libs.edc.api.secrets)
     runtimeOnly(libs.edc.fc.api)
 
