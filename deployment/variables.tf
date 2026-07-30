@@ -72,3 +72,9 @@ variable "kubeconfig-path" {
   description = "Path to the kubeconfig. k3s writes /etc/rancher/k3s/k3s.yaml."
   default     = "~/.kube/config"
 }
+
+variable "enable-issuer" {
+  type        = bool
+  description = "Deploy the dataspace issuer service. Not needed when credentials are issued outside the dataspace."
+  default     = true
+}
