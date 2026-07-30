@@ -31,6 +31,12 @@ Wire-level changes aligning with the final OID4VP 1.0 / OID4VCI 1.0 specs. Built
 | Holder proof signing for EC / RSA / Ed25519 keys | Built, retest pending |
 | Nonce endpoint `Cache-Control: no-store` | Built |
 
+## Access Policy Addon (access-policy)
+
+| Feature | Status | Notes |
+|---|---|---|
+| `ConnectorDid` policy function | Tested | Catalog filtering, negotiation acceptance and rejection verified end-to-end |
+
 ## Gaia-X Addon (gx-impl)
 
 | Feature | Status | Notes |

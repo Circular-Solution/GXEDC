@@ -14,6 +14,7 @@ Both are built and published to Maven local, then consumed by this project. All 
 ## What this repo contains
 - **`extensions/`** - GXEDC extensions
     - `gx-impl` - `GaiaXCredentialValidator` plus `GaiaXLabelCredential` and `GaiaXLabelLevel` policy functions (loaded by the Connector)
+    - `access-policy` - `ConnectorDid` policy function for restricting offers to specific participant DIDs (loaded by the Connector)
     - `superuser-seed` - bootstraps the Identity Hub super-user participant context
     - `catalog-node-resolver` - federated catalog target node directory
     - `dataplane-public-api` - public data-plane HTTP controller
@@ -35,6 +36,8 @@ Both are built and published to Maven local, then consumed by this project. All 
 2. **OID4VC + Gaia-X policy** - keep `gx-impl` for `gx:LabelCredential` validation and policy enforcement. Gaia-X credentials are obtained from a GXDCH out-of-band and loaded into the Identity Hub (see the seed script), optionally verified remotely via `gx-basic-functions`.
 
 > The former `gx-issuer` / `gx-issuer-s3` extensions (in-connector GXDCH proxying and VC publishing) have been removed - credentials are now issued/obtained outside the connector and seeded in.
+
+All policy extensions are plug and play. `access-policy` (per-participant sharing via the `ConnectorDid` constraint) works in either mode - if you don't need it, turn it off by not building it: remove its `runtimeOnly` line from `launchers/controlplane/build.gradle.kts`. Policies referencing `ConnectorDid` are then no longer enforced, so don't create them.
 
 ## Note
 

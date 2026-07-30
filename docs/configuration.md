@@ -84,8 +84,10 @@ Active only when `gx-impl` extension is loaded.
 |---|---|
 | `GaiaXLabelCredential` | `https://w3id.org/edc/v0.0.1/ns/GaiaXLabelCredential` |
 | `GaiaXLabelLevel` | `https://w3id.org/edc/v0.0.1/ns/GaiaXLabelLevel` |
+| `ConnectorDid` | `https://w3id.org/edc/v0.0.1/ns/ConnectorDid` |
 
-Both constraints expect `operator: "eq"`. Right-operand values:
+Operators and right-operand values:
 
-- `GaiaXLabelCredential` — `"active"`
-- `GaiaXLabelLevel` — `"SC"`, `"L1"`, `"L2"`, `"L3"`
+- `GaiaXLabelCredential` — `eq` `"active"`
+- `GaiaXLabelLevel` — `eq` `"SC"`, `"L1"`, `"L2"`, `"L3"`
+- `ConnectorDid` — `eq`/`in`/`isAnyOf` (or negated `neq`/`isNoneOf`) with one DID or a list, e.g. `["did:web:partner-a", "did:web:partner-b"]`

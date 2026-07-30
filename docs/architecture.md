@@ -49,6 +49,9 @@ These modules are fully generic - they do not know about Gaia-X
         - GaiaXLabelCredentialFunction # Policy constraint: "GaiaXLabelCredential eq active"
         - GaiaXLabelLevelFunction # Policy constraint: "GaiaXLabelLevel eq SC/L1/L2/L3"
         - GaiaXPolicyExtension # Registers both functions above in catalog, negotiation and transfer scopes
+    - access-policy/ # Loaded by Connector (optional, plug and play)
+        - ConnectorDidFunction # Policy constraint: "ConnectorDid isAnyOf [did:web:...]"
+        - AccessPolicyExtension # Registers the function in catalog, negotiation and transfer scopes
     - superuser-seed/ # Loaded by Identity Hub and Issuer Service
         - ParticipantContextSeedExtension # Bootstraps the super-user participant context
     - catalog-node-resolver/ # Loaded by catalog server
@@ -75,12 +78,17 @@ Gaia-X compliance credentials (`gx:LabelCredential`) are obtained from a GXDCH o
 
 ## Policy Enforcement
 
-The Gaia-X addon provides two policy constraints, both available in Catalog, Negotiation, and Transfer scopes:
+Three policy constraints are provided, all available in Catalog, Negotiation, and Transfer scopes:
 
-| Constraint key | Purpose | Example |
-|---|---|---|
-| `GaiaXLabelCredential` | Require any valid `gx:LabelCredential` | `"leftOperand": "GaiaXLabelCredential", "operator": "eq", "rightOperand": "active"` |
-| `GaiaXLabelLevel` | Require a specific label level | `"leftOperand": "GaiaXLabelLevel", "operator": "eq", "rightOperand": "L2"` |
+| Constraint key | Extension | Purpose | Example |
+|---|---|---|---|
+| `GaiaXLabelCredential` | `gx-impl` | Require any valid `gx:LabelCredential` | `"leftOperand": "GaiaXLabelCredential", "operator": "eq", "rightOperand": "active"` |
+| `GaiaXLabelLevel` | `gx-impl` | Require a specific label level | `"leftOperand": "GaiaXLabelLevel", "operator": "eq", "rightOperand": "L2"` |
+| `ConnectorDid` | `access-policy` | Restrict an offer to specific participant DIDs (evaluated against the verified counterparty identity) | `"leftOperand": "ConnectorDid", "operator": "isAnyOf", "rightOperand": ["did:web:partner"]` |
+
+Each extension is plug and play: remove it from the launcher's `build.gradle.kts` and its constraints are no longer registered or enforced.
+
+Note: the catalog-server launcher loads no policy extensions, so constraint filtering applies to direct DSP catalog requests against the controlplane, not to the federated catalog. Negotiation and transfer enforcement always happen on the controlplane.
 
 The `GaiaXCredentialValidator` performs:
 
