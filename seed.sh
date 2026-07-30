@@ -7,22 +7,7 @@ NAMESPACE="cs"
 CONSUMER_DID="did:web:consumer-identityhub%3A7083"
 PROVIDER_DID="did:web:provider-identityhub%3A7083"
 
-SCRIPT_DIR="$(dirname "$0")"
-PRIVATE_JWK_PATH="${PRIVATE_JWK_PATH:-$SCRIPT_DIR/private-jwk.json}"
-SEED_CREDENTIAL_PATH="${SEED_CREDENTIAL_PATH:-$SCRIPT_DIR/seed-credential.jwt}"
-
-if [ -f "$PRIVATE_JWK_PATH" ]; then
-  echo "Seeding GXDCH signing key into consumer/provider vaults..."
-  PRIVATE_JWK_CONTENT=$(cat "$PRIVATE_JWK_PATH")
-  PUBLIC_JWK_CONTENT=$(jq -c 'del(.d, .p, .q, .dp, .dq, .qi)' "$PRIVATE_JWK_PATH")
-  for participant in consumer provider; do
-    kubectl exec -n $NAMESPACE ${participant}-vault-0 -- sh -c \
-      "VAULT_TOKEN=root VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/gxdch-signing-key content='$PRIVATE_JWK_CONTENT'"
-  done
-else
-  echo "ERROR: $PRIVATE_JWK_PATH not found, cannot seed RSA key"
-  exit 1
-fi
+GX_JWT="${GX_JWT:-}"
 
 create_participant() {
   local name=$1
@@ -44,7 +29,6 @@ create_participant() {
     --arg encoded_did "$encoded_did" \
     --arg name "$name" \
     --arg ih_internal "$ih_internal" \
-    --argjson public_jwk "$PUBLIC_JWK_CONTENT" \
     '{
       roles: [],
       serviceEndpoints: [{
@@ -57,9 +41,12 @@ create_participant() {
       participantId: $did,
       did: $did,
       key: {
-        keyId: "\($did)#JWK2020-RSA",
-        privateKeyAlias: "gxdch-signing-key",
-        publicKeyJwk: $public_jwk
+        keyId: "\($did)#key-1",
+        privateKeyAlias: "key-1",
+        keyGeneratorParams: {
+          algorithm: "EdDSA",
+          curve: "Ed25519"
+        }
       }
     }')
 
@@ -85,8 +72,8 @@ load_credential() {
   local ih_host=$2
   local did=$3
 
-  if [ ! -f "$SEED_CREDENTIAL_PATH" ]; then
-    echo "WARNING: $SEED_CREDENTIAL_PATH not found, skipping credential seed for $name"
+  if [ -z "$GX_JWT" ]; then
+    echo "WARNING: GX_JWT not set, skipping credential seed for $name"
     return
   fi
 
@@ -94,7 +81,7 @@ load_credential() {
   encoded_did=$(echo -n "$did" | base64 | tr -d '\n')
 
   local vc_jwt
-  vc_jwt=$(tr -d '[:space:]' < "$SEED_CREDENTIAL_PATH")
+  vc_jwt=$(echo -n "$GX_JWT" | tr -d '[:space:]')
 
   local payload_b64
   payload_b64=$(echo "$vc_jwt" | cut -d. -f2)

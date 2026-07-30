@@ -82,8 +82,8 @@ variable "aliases" {
     sts-public-key-id = string
   })
   default = {
-    sts-private-key   = "gxdch-signing-key"
-    sts-public-key-id = "JWK2020-RSA"
+    sts-private-key   = "key-1"
+    sts-public-key-id = "key-1"
   }
 }
 
