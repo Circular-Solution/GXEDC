@@ -57,6 +57,18 @@ variable "rds-master-password" {
 }
 
 variable "gx_basic_functions_url" {
-  type    = string
+  type        = string
   description = "Production Gaia-X Basic Functions URL"
+}
+
+variable "use-https" {
+  type        = bool
+  description = "Resolve did:web over HTTPS. Must be true for publicly hosted DID documents."
+  default     = false
+}
+
+variable "kubeconfig-path" {
+  type        = string
+  description = "Path to the kubeconfig. k3s writes /etc/rancher/k3s/k3s.yaml."
+  default     = "~/.kube/config"
 }

@@ -14,6 +14,7 @@ module "consumer-connector" {
   participant-list-file  = "./assets/participants/participants.local.json"
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
+  use-https              = var.use-https
 }
 
 module "consumer-identityhub" {
@@ -30,6 +31,7 @@ module "consumer-identityhub" {
   }
   namespace = kubernetes_namespace.ns.metadata.0.name
   useSVE    = var.useSVE
+  use-https = var.use-https
 }
 
 module "consumer-vault" {
