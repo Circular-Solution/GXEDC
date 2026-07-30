@@ -1,4 +1,5 @@
 module "dataspace-issuer" {
+  count             = var.enable-issuer ? 1 : 0
   source            = "./modules/issuer"
   humanReadableName = "dataspace-issuer-service"
   participantId     = var.issuer-did
