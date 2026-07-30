@@ -128,3 +128,9 @@ locals {
   controlplane-service-name = "${var.humanReadableName}-controlplane"
   dataplane-service-name    = "${var.humanReadableName}-dataplane"
 }
+
+variable "dataplane-public-url" {
+  type        = string
+  default     = ""
+  description = "Publicly reachable base URL of this data plane, e.g. https://provider.edc.example.com. Empty uses the in-cluster service URL."
+}

@@ -15,6 +15,7 @@ module "consumer-connector" {
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
   use-https              = var.use-https
+  dataplane-public-url   = var.consumer-dataplane-public-url
 }
 
 module "consumer-identityhub" {

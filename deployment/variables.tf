@@ -78,3 +78,15 @@ variable "enable-issuer" {
   description = "Deploy the dataspace issuer service. Not needed when credentials are issued outside the dataspace."
   default     = true
 }
+
+variable "consumer-dataplane-public-url" {
+  type        = string
+  default     = ""
+  description = "Publicly reachable base URL of the consumer data plane. Required when data is pulled from outside the cluster."
+}
+
+variable "provider-dataplane-public-url" {
+  type        = string
+  default     = ""
+  description = "Publicly reachable base URL of the provider data plane. Required when data is pulled from outside the cluster."
+}

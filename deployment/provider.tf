@@ -15,6 +15,7 @@ module "provider-connector" {
   gx_basic_functions_url = var.gx_basic_functions_url
   depends_on             = [kubernetes_job.rds-init]
   use-https              = var.use-https
+  dataplane-public-url   = var.provider-dataplane-public-url
 }
 
 module "provider-identityhub" {
