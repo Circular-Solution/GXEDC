@@ -106,10 +106,17 @@ load_credential() {
   local vc_jwt
   vc_jwt=$(echo -n "$GX_JWT" | tr -d '[:space:]')
 
+  if [ "$(echo "$vc_jwt" | awk -F. '{print NF}')" -ne 3 ]; then
+    echo "ERROR: GX_JWT is not a JWT (expected 3 dot-separated parts)"
+    exit 1
+  fi
+
   local payload_b64
   payload_b64=$(echo "$vc_jwt" | cut -d. -f2)
-  local padding=$((4 - ${#payload_b64} % 4))
-  [ $padding -ne 4 ] && payload_b64="${payload_b64}$(printf '%*s' $padding | tr ' ' '=')"
+  local padding=$(((4 - ${#payload_b64} % 4) % 4))
+  if [ "$padding" -ne 0 ]; then
+    payload_b64="${payload_b64}$(printf '%*s' "$padding" | tr ' ' '=')"
+  fi
   local payload
   payload=$(echo "$payload_b64" | tr '_-' '/+' | base64 -d 2>/dev/null)
   if [ -z "$payload" ]; then
