@@ -13,7 +13,10 @@ PROVIDER_DID="${PROVIDER_DID:-did:web:provider-identityhub%3A7083}"
 # private JWK (JSON) whose public half is published as <did>#key-1 in the hosted DID document.
 # Empty = let the Identity Hub generate a keypair and publish it in its own DID document.
 CONSUMER_KEY="${CONSUMER_KEY:-}"
+# vault alias for the participant key. Must be unique per participant when the vault is shared.
+CONSUMER_KEY_ALIAS="${CONSUMER_KEY_ALIAS:-key-1}"
 PROVIDER_KEY="${PROVIDER_KEY:-}"
+PROVIDER_KEY_ALIAS="${PROVIDER_KEY_ALIAS:-key-1}"
 
 GX_JWT="${GX_JWT:-}"
 
@@ -22,6 +25,7 @@ create_participant() {
   local ih_url=$2
   local did=$3
   local private_key=$5
+  local key_alias=$6
   local ih_internal=$4
 
   local encoded_did
@@ -36,13 +40,15 @@ create_participant() {
   if [ -n "$private_key" ]; then
     echo "Importing provided signing key for $name..."
     kubectl exec -n $NAMESPACE ${name}-vault-0 -- sh -c \
-      "VAULT_TOKEN=root VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/key-1 content='$private_key'" >/dev/null
+      "VAULT_TOKEN=root VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/$key_alias content='$private_key'" >/dev/null
     key_spec=$(jq -n --arg did "$did" \
       --argjson public_jwk "$(echo "$private_key" | jq -c 'del(.d, .p, .q, .dp, .dq, .qi)')" \
-      '{keyId: "\($did)#key-1", privateKeyAlias: "key-1", publicKeyJwk: $public_jwk}')
+      --arg alias "$key_alias" \
+      '{keyId: "\($did)#key-1", privateKeyAlias: $alias, publicKeyJwk: $public_jwk}')
   else
     key_spec=$(jq -n --arg did "$did" \
-      '{keyId: "\($did)#key-1", privateKeyAlias: "key-1",
+      --arg alias "$key_alias" \
+      '{keyId: "\($did)#key-1", privateKeyAlias: $alias,
         keyGeneratorParams: {algorithm: "EdDSA", curve: "Ed25519"}}')
   fi
 
@@ -163,15 +169,15 @@ load_credential() {
   fi
 }
 
-create_participant "consumer" "$CONSUMER_IH_URL" "$CONSUMER_DID" "consumer-identityhub" "$CONSUMER_KEY"
-create_participant "provider" "$PROVIDER_IH_URL" "$PROVIDER_DID" "provider-identityhub" "$PROVIDER_KEY"
+create_participant "consumer" "$CONSUMER_IH_URL" "$CONSUMER_DID" "consumer-identityhub" "$CONSUMER_KEY" "$CONSUMER_KEY_ALIAS"
+create_participant "provider" "$PROVIDER_IH_URL" "$PROVIDER_DID" "provider-identityhub" "$PROVIDER_KEY" "$PROVIDER_KEY_ALIAS"
 
 load_credential "consumer" "$CONSUMER_IH_URL" "$CONSUMER_DID"
 load_credential "provider" "$PROVIDER_IH_URL" "$PROVIDER_DID"
 
 echo "Restarting deployments..."
 for dep in consumer-controlplane consumer-dataplane provider-controlplane provider-dataplane provider-catalog-server; do
-  kubectl rollout restart deployment "$dep" -n $NAMESPACE
+  kubectl rollout restart deployment "$dep" -n $NAMESPACE 2>/dev/null || true
 done
 
 kubectl rollout status deployment consumer-controlplane -n $NAMESPACE --timeout=120s

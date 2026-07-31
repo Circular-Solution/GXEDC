@@ -36,6 +36,7 @@ module "provider-identityhub" {
 }
 
 module "provider-catalog-server" {
+  count                 = var.enable-catalog-server ? 1 : 0
   source                = "./modules/catalog-server"
   humanReadableName     = "provider-catalog-server"
   participantId         = var.provider-did

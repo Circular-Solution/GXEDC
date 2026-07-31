@@ -90,3 +90,9 @@ variable "provider-dataplane-public-url" {
   default     = ""
   description = "Publicly reachable base URL of the provider data plane. Required when data is pulled from outside the cluster."
 }
+
+variable "enable-catalog-server" {
+  type        = bool
+  description = "Deploy the federated catalog server. Not needed when partners are queried directly over DSP."
+  default     = true
+}
