@@ -56,10 +56,6 @@ variable "rds-master-password" {
   default     = ""
 }
 
-variable "gx_basic_functions_url" {
-  type        = string
-  description = "Production Gaia-X Basic Functions URL"
-}
 
 variable "use-https" {
   type        = bool

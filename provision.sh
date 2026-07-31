@@ -44,6 +44,7 @@ INGRESS_HOST="${INGRESS_HOST:-}"
 MANAGEMENT_KEY="${MANAGEMENT_KEY:-password}"
 USE_SVE="${USE_SVE:-false}"
 USE_HTTPS="${USE_HTTPS:-true}"
+GX_BASIC_FUNCTIONS_URL="${GX_BASIC_FUNCTIONS_URL:-}"
 
 encoded_did=$(echo -n "$DID" | base64 | tr -d '\n')
 # host part of a did:web, used as the in-cluster service alias for DID resolution
@@ -169,6 +170,7 @@ helm_args=(
   --set management.authKey="$MANAGEMENT_KEY"
   --set useSVE="$USE_SVE"
   --set useHttps="$USE_HTTPS"
+  --set gaiaxBasicFunctionsUrl="$GX_BASIC_FUNCTIONS_URL"
 )
 [ -n "$IMAGE_REGISTRY" ] && helm_args+=(--set image.registry="$IMAGE_REGISTRY")
 [ -n "$PUBLIC_DSP_URL" ] && helm_args+=(--set public.dspCallbackAddress="$PUBLIC_DSP_URL")
