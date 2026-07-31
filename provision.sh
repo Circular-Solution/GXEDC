@@ -48,7 +48,7 @@ GX_BASIC_FUNCTIONS_URL="${GX_BASIC_FUNCTIONS_URL:-}"
 
 encoded_did=$(echo -n "$DID" | base64 | tr -d '\n')
 # host part of a did:web, used as the in-cluster service alias for DID resolution
-DID_HOST_ALIAS="${DID_HOST_ALIAS:-$(echo "$DID" | sed -e 's|^did:web:||' -e 's|%3A.*$||' -e 's|:.*$||')}"
+DID_HOST_ALIAS="${DID_HOST_ALIAS-$(echo "$DID" | sed -e 's|^did:web:||' -e 's|%3A.*$||' -e 's|:.*$||')}"
 STS_SECRET_ALIAS="${STS_SECRET_ALIAS:-${NAME}-sts-client-secret}"
 
 echo "==> [1/5] database $DB_NAME"
