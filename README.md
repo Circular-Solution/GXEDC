@@ -19,13 +19,14 @@ Both are built and published to Maven local, then consumed by this project. All 
     - `catalog-node-resolver` - federated catalog target node directory
     - `dataplane-public-api` - public data-plane HTTP controller
 - **`launchers/`** - Runtimes for controlplane, dataplane, identity-hub, catalog-server, issuer-service
-- **`deployment/`** - Terraform for the local kind deployment (adapt the values in `terraform.tfvars` for other environments)
+- **`deployment/`** - Terraform for the shared base (Postgres, vault, Identity Hub) plus the `edc-tenant` Helm chart
+- **`provision.sh`** - provisions one participant: database, participant context, key, Gaia-X credential and connector runtimes
 
 ## Documentation
 
 | Doc | Purpose |
 | --- | --- |
-| [getting-started](./docs/getting-started.md) | Clone, build, deploy, seed |
+| [getting-started](./docs/getting-started.md) | Clone, build, deploy, provision |
 | [architecture](./docs/architecture.md) | Module layout, protocols, design decisions |
 | [configuration](./docs/configuration.md) | Env vars and `@Setting` keys |
 | [status](./docs/status.md) | Feature statuses |
@@ -33,9 +34,9 @@ Both are built and published to Maven local, then consumed by this project. All 
 ## Two deployment modes
 
 1. **Pure OID4VC** - OID4VP for DSP auth, OID4VCI for credential issuance. No Gaia-X. Drop `gx-impl`.
-2. **OID4VC + Gaia-X policy** - keep `gx-impl` for `gx:LabelCredential` validation and policy enforcement. Gaia-X credentials are obtained from a GXDCH out-of-band and loaded into the Identity Hub (see the seed script), optionally verified remotely via `gx-basic-functions`.
+2. **OID4VC + Gaia-X policy** - keep `gx-impl` for `gx:LabelCredential` validation and policy enforcement. Gaia-X credentials are obtained from a GXDCH out-of-band and loaded at provisioning time, optionally verified remotely via `gx-basic-functions`.
 
-> The former `gx-issuer` / `gx-issuer-s3` extensions (in-connector GXDCH proxying and VC publishing) have been removed - credentials are now issued/obtained outside the connector and seeded in.
+> The former `gx-issuer` / `gx-issuer-s3` extensions (in-connector GXDCH proxying and VC publishing) have been removed - credentials are now issued/obtained outside the connector and loaded at provisioning time.
 
 All policy extensions are plug and play. `access-policy` (per-participant sharing via the `ConnectorDid` constraint) works in either mode - if you don't need it, turn it off by not building it: remove its `runtimeOnly` line from `launchers/controlplane/build.gradle.kts`. Policies referencing `ConnectorDid` are then no longer enforced, so don't create them.
 

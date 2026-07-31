@@ -1,0 +1,11 @@
+{{- if .Values.didHostAlias }}
+# did:web:<didHostAlias>%3A7083 must resolve to the identity hub that holds this
+# participant, because the hub keys DID documents off the request URL.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.didHostAlias }}
+spec:
+  type: ExternalName
+  externalName: {{ required "identityHub.service is required with didHostAlias" .Values.identityHub.service }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end }}

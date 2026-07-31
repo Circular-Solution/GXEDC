@@ -96,3 +96,10 @@ variable "enable-catalog-server" {
   description = "Deploy the federated catalog server. Not needed when partners are queried directly over DSP."
   default     = true
 }
+
+
+variable "identityhub-hosts" {
+  type        = list(string)
+  description = "Hostnames the shared identity hub answers on for the identity and credentials APIs."
+  default     = ["consumer.local", "provider.local"]
+}

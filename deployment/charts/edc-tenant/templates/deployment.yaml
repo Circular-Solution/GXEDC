@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edc-tenant.controlplane" . }}
+  labels:
+    app: {{ include "edc-tenant.controlplane" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "edc-tenant.controlplane" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "edc-tenant.controlplane" . }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: controlplane
+          image: {{ include "edc-tenant.image" (list . .Values.image.controlplane) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "edc-tenant.controlplane" . }}-config
+          ports:
+            - name: web
+              containerPort: {{ .Values.ports.web }}
+            - name: management
+              containerPort: {{ .Values.ports.management }}
+            - name: protocol
+              containerPort: {{ .Values.ports.protocol }}
+            - name: control
+              containerPort: {{ .Values.ports.control }}
+            - name: catalog
+              containerPort: {{ .Values.ports.catalog }}
+            - name: oid4vp
+              containerPort: {{ .Values.ports.oid4vp }}
+          volumeMounts:
+            - name: files
+              mountPath: /etc/registry/registry.json
+              subPath: registry.json
+            - name: files
+              mountPath: /etc/participants/participants.json
+              subPath: participants.json
+          livenessProbe:
+            httpGet:
+              path: /api/check/liveness
+              port: {{ .Values.ports.web }}
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/check/readiness
+              port: {{ .Values.ports.web }}
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          startupProbe:
+            httpGet:
+              path: /api/check/startup
+              port: {{ .Values.ports.web }}
+            failureThreshold: 20
+            periodSeconds: 5
+            timeoutSeconds: 30
+          resources:
+            {{- toYaml .Values.resources.controlplane | nindent 12 }}
+      volumes:
+        - name: files
+          configMap:
+            name: {{ include "edc-tenant.name" . }}-files
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edc-tenant.dataplane" . }}
+  labels:
+    app: {{ include "edc-tenant.dataplane" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "edc-tenant.dataplane" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "edc-tenant.dataplane" . }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: dataplane
+          image: {{ include "edc-tenant.image" (list . .Values.image.dataplane) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "edc-tenant.dataplane" . }}-config
+          ports:
+            - name: web
+              containerPort: {{ .Values.ports.web }}
+            - name: control
+              containerPort: {{ .Values.ports.control }}
+            - name: public
+              containerPort: {{ .Values.ports.public }}
+          livenessProbe:
+            httpGet:
+              path: /api/check/liveness
+              port: {{ .Values.ports.web }}
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/check/readiness
+              port: {{ .Values.ports.web }}
+            failureThreshold: 10
+            periodSeconds: 5
+            timeoutSeconds: 30
+          startupProbe:
+            httpGet:
+              path: /api/check/startup
+              port: {{ .Values.ports.web }}
+            failureThreshold: 20
+            periodSeconds: 5
+            timeoutSeconds: 30
+          resources:
+            {{- toYaml .Values.resources.dataplane | nindent 12 }}

@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "edc-tenant.controlplane" . }}-config
+data:
+  EDC_PARTICIPANT_ID: {{ .Values.participantId | quote }}
+  EDC_IAM_ISSUER_ID: {{ .Values.participantId | quote }}
+  EDC_IAM_DID_WEB_USE_HTTPS: {{ .Values.useHttps | quote }}
+  WEB_HTTP_PORT: {{ .Values.ports.web | quote }}
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_MANAGEMENT_PORT: {{ .Values.ports.management | quote }}
+  WEB_HTTP_MANAGEMENT_PATH: "/api/management"
+  WEB_HTTP_MANAGEMENT_AUTH_TYPE: "tokenbased"
+  WEB_HTTP_MANAGEMENT_AUTH_KEY: {{ .Values.management.authKey | quote }}
+  WEB_HTTP_CONTROL_PORT: {{ .Values.ports.control | quote }}
+  WEB_HTTP_CONTROL_PATH: "/api/control"
+  WEB_HTTP_PROTOCOL_PORT: {{ .Values.ports.protocol | quote }}
+  WEB_HTTP_PROTOCOL_PATH: "/api/dsp"
+  WEB_HTTP_CATALOG_PORT: {{ .Values.ports.catalog | quote }}
+  WEB_HTTP_CATALOG_PATH: "/api/catalog"
+  WEB_HTTP_CATALOG_AUTH_TYPE: "tokenbased"
+  WEB_HTTP_CATALOG_AUTH_KEY: {{ .Values.management.authKey | quote }}
+  WEB_HTTP_OID4VP_PORT: {{ .Values.ports.oid4vp | quote }}
+  WEB_HTTP_OID4VP_PATH: "/api/oid4vp"
+  EDC_DSP_CALLBACK_ADDRESS: {{ if .Values.public.dspCallbackAddress }}{{ printf "%s/api/dsp" .Values.public.dspCallbackAddress | quote }}{{ else }}{{ printf "http://%s:%v/api/dsp" (include "edc-tenant.controlplane" .) .Values.ports.protocol | quote }}{{ end }}
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: {{ .Values.aliases.privateKey | quote }}
+  EDC_IAM_STS_PUBLICKEY_ID: {{ printf "%s#%s" .Values.participantId .Values.aliases.publicKeyId | quote }}
+  JAVA_TOOL_OPTIONS: {{ include "edc-tenant.javaOpts" . | quote }}
+  EDC_IH_AUDIENCE_REGISTRY_PATH: "/etc/registry/registry.json"
+  EDC_MVD_PARTICIPANTS_LIST_FILE: "/etc/participants/participants.json"
+  EDC_VAULT_HASHICORP_URL: {{ .Values.vault.url | quote }}
+  EDC_VAULT_HASHICORP_TOKEN: {{ .Values.vault.token | quote }}
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: "false"
+  EDC_VAULT_HASHICORP_ALLOW_FALLBACK: "true"
+  EDC_CATALOG_CACHE_EXECUTION_DELAY_SECONDS: "10"
+  EDC_CATALOG_CACHE_EXECUTION_PERIOD_SECONDS: "10"
+  EDC_DATASOURCE_DEFAULT_URL: {{ .Values.database.url | quote }}
+  EDC_DATASOURCE_DEFAULT_USER: {{ .Values.database.user | quote }}
+  EDC_DATASOURCE_DEFAULT_PASSWORD: {{ .Values.database.password | quote }}
+  EDC_SQL_SCHEMA_AUTOCREATE: "true"
+  EDC_IAM_STS_OAUTH_TOKEN_URL: {{ .Values.identityHub.stsTokenUrl | quote }}
+  EDC_IAM_STS_OAUTH_CLIENT_ID: {{ .Values.participantId | quote }}
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: {{ .Values.aliases.stsClientSecret | quote }}
+  EDC_WEB_REST_CORS_ENABLED: "true"
+  EDC_WEB_REST_CORS_HEADERS: "origin, content-type, accept, authorization, x-api-key"
+  EDC_OID4VP_IDENTITY_HUB_URL: {{ .Values.identityHub.url | quote }}
+  EDC_OID4VP_CREDENTIAL_SCOPE: {{ .Values.credentialScope | quote }}
+  EDC_OID4VP_CONNECTOR_PUBLIC_URL: {{ printf "http://%s:%v/api/oid4vp" (include "edc-tenant.controlplane" .) .Values.ports.oid4vp | quote }}
+  EDC_GAIAX_BASIC_FUNCTIONS_URL: {{ .Values.gaiaxBasicFunctionsUrl | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "edc-tenant.dataplane" . }}-config
+data:
+  EDC_HOSTNAME: {{ include "edc-tenant.dataplane" . | quote }}
+  EDC_RUNTIME_ID: {{ include "edc-tenant.dataplane" . | quote }}
+  EDC_PARTICIPANT_ID: {{ .Values.participantId | quote }}
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: {{ .Values.aliases.privateKey | quote }}
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: {{ .Values.aliases.privateKey | quote }}
+  EDC_DPF_SELECTOR_URL: {{ printf "http://%s:%v/api/control/v1/dataplanes" (include "edc-tenant.controlplane" .) .Values.ports.control | quote }}
+  WEB_HTTP_PORT: {{ .Values.ports.web | quote }}
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_CONTROL_PORT: {{ .Values.ports.control | quote }}
+  WEB_HTTP_CONTROL_PATH: "/api/control"
+  WEB_HTTP_PUBLIC_PORT: {{ .Values.ports.public | quote }}
+  WEB_HTTP_PUBLIC_PATH: "/api/public"
+  EDC_DATAPLANE_API_PUBLIC_BASEURL: {{ if .Values.public.dataplaneUrl }}{{ printf "%s/api/public" .Values.public.dataplaneUrl | quote }}{{ else }}{{ printf "http://%s:%v/api/public" (include "edc-tenant.dataplane" .) .Values.ports.public | quote }}{{ end }}
+  EDC_VAULT_HASHICORP_URL: {{ .Values.vault.url | quote }}
+  EDC_VAULT_HASHICORP_TOKEN: {{ .Values.vault.token | quote }}
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: "false"
+  EDC_VAULT_HASHICORP_ALLOW_FALLBACK: "true"
+  EDC_DATASOURCE_DEFAULT_URL: {{ .Values.database.url | quote }}
+  EDC_DATASOURCE_DEFAULT_USER: {{ .Values.database.user | quote }}
+  EDC_DATASOURCE_DEFAULT_PASSWORD: {{ .Values.database.password | quote }}
+  EDC_SQL_SCHEMA_AUTOCREATE: "true"
+  EDC_IAM_STS_OAUTH_TOKEN_URL: {{ .Values.identityHub.stsTokenUrl | quote }}
+  EDC_IAM_STS_OAUTH_CLIENT_ID: {{ .Values.participantId | quote }}
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: {{ .Values.aliases.stsClientSecret | quote }}
+  EDC_WEB_REST_CORS_ENABLED: "true"
+  EDC_WEB_REST_CORS_HEADERS: "Authorization,Content-Type,X-Api-Key"
+  EDC_WEB_REST_CORS_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+  JAVA_TOOL_OPTIONS: {{ include "edc-tenant.javaOpts" . | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "edc-tenant.name" . }}-files
+data:
+  registry.json: |
+    {{- toJson (dict "trustedIssuers" .Values.trustedIssuers) | nindent 4 }}
+  participants.json: |
+    {{- toJson .Values.participants | nindent 4 }}

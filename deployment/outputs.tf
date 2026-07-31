@@ -20,13 +20,6 @@
 #       Circular Solution Co., Ltd. - production config
 #
 
-output "consumer-jdbc-url" {
-  value = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_consumer_edc"
-}
-
-output "provider-jdbc-url" {
-  value = {
-    catalog-server = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_catalogserver_edc"
-    provider       = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_provider_edc"
-  }
+output "identityhub-jdbc-url" {
+  value = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_identity_edc"
 }

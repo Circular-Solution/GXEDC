@@ -1,0 +1,35 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "edc-tenant.name" . }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ required "ingress.host is required when ingress.enabled" .Values.ingress.host }}
+      http:
+        paths:
+          - path: /api/dsp
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "edc-tenant.controlplane" . }}
+                port:
+                  number: {{ .Values.ports.protocol }}
+          - path: /api/management
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "edc-tenant.controlplane" . }}
+                port:
+                  number: {{ .Values.ports.management }}
+          - path: /api/public
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "edc-tenant.dataplane" . }}
+                port:
+                  number: {{ .Values.ports.public }}
+{{- end }}

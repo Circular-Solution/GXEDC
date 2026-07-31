@@ -1,50 +1,11 @@
-module "provider-connector" {
-  source            = "./modules/connector"
-  humanReadableName = "provider"
-  participantId     = var.provider-did
-  database = {
-    user     = var.rds-master-user
-    password = var.rds-master-password
-    url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_provider_edc"
-  }
-  namespace              = kubernetes_namespace.ns.metadata.0.name
-  vault-url              = "http://provider-vault:8200"
-  sts-token-url          = "${module.provider-identityhub.sts-token-url}/token"
-  useSVE                 = var.useSVE
-  participant-list-file  = "./assets/participants/participants.local.json"
-  gx_basic_functions_url = var.gx_basic_functions_url
-  depends_on             = [kubernetes_job.rds-init]
-  node-port-base         = 32100
-  use-https              = var.use-https
-  dataplane-public-url   = var.provider-dataplane-public-url
-}
-
-module "provider-identityhub" {
-  depends_on        = [module.provider-vault, kubernetes_job.rds-init]
-  source            = "./modules/identity-hub"
-  humanReadableName = "provider-identityhub"
-  participantId     = var.provider-did
-  vault-url         = "http://provider-vault:8200"
-  service-name      = "provider"
-  namespace         = kubernetes_namespace.ns.metadata.0.name
-  database = {
-    user     = var.rds-master-user
-    password = var.rds-master-password
-    url      = "jdbc:postgresql://${var.rds-host}:${var.rds-port}/cssp_identity_edc"
-  }
-  useSVE         = var.useSVE
-  node-port-base = 32100
-  use-https      = var.use-https
-}
-
 module "provider-catalog-server" {
   count                 = var.enable-catalog-server ? 1 : 0
   source                = "./modules/catalog-server"
   humanReadableName     = "provider-catalog-server"
   participantId         = var.provider-did
   namespace             = kubernetes_namespace.ns.metadata.0.name
-  vault-url             = "http://provider-vault:8200"
-  sts-token-url         = "${module.provider-identityhub.sts-token-url}/token"
+  vault-url             = "http://vault:8200"
+  sts-token-url         = "${module.identityhub.sts-token-url}/token"
   participant-list-file = "./assets/participants/participants.local.json"
   database = {
     user     = var.rds-master-user
@@ -54,10 +15,4 @@ module "provider-catalog-server" {
   useSVE     = var.useSVE
   depends_on = [kubernetes_job.rds-init]
   use-https  = var.use-https
-}
-
-module "provider-vault" {
-  source            = "./modules/vault"
-  humanReadableName = "provider-vault"
-  namespace         = kubernetes_namespace.ns.metadata.0.name
 }

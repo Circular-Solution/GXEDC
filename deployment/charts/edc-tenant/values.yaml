@@ -1,0 +1,80 @@
+participantId: ""
+
+image:
+  registry: ""
+  controlplane: controlplane
+  dataplane: dataplane
+  tag: latest
+  pullPolicy: IfNotPresent
+
+identityHub:
+  url: ""
+  stsTokenUrl: ""
+  service: ""
+
+vault:
+  url: ""
+  token: root
+
+database:
+  url: ""
+  user: ""
+  password: ""
+
+aliases:
+  privateKey: key-1
+  publicKeyId: key-1
+  stsClientSecret: sts-client-secret
+
+# empty means the in-cluster service URL, which only works when every
+# counterparty and client runs inside this cluster
+public:
+  dspCallbackAddress: ""
+  dataplaneUrl: ""
+
+management:
+  authKey: password
+
+didHostAlias: ""
+
+credentialScope: org.eclipse.edc.vc.type:gx:LabelCredential:read
+gaiaxBasicFunctionsUrl: ""
+useHttps: true
+useSVE: false
+debug: false
+
+trustedIssuers: []
+participants: {}
+
+service:
+  type: ClusterIP
+  # pins node ports when service.type is NodePort: management +81, protocol +82, public +92
+  nodePortBase: null
+
+ingress:
+  enabled: false
+  className: nginx
+  host: ""
+  annotations: {}
+
+resources:
+  controlplane:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+  dataplane:
+    requests:
+      memory: 384Mi
+    limits:
+      memory: 768Mi
+
+ports:
+  web: 8080
+  management: 8081
+  protocol: 8082
+  control: 8083
+  catalog: 8084
+  public: 11002
+  oid4vp: 11003
+  debug: 1044

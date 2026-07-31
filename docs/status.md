@@ -37,6 +37,16 @@ Wire-level changes aligning with the final OID4VP 1.0 / OID4VCI 1.0 specs. Built
 |---|---|---|
 | `ConnectorDid` policy function | Tested | Catalog filtering, negotiation acceptance and rejection verified end-to-end |
 
+## Provisioning
+
+| Feature | Status | Notes |
+|---|---|---|
+| Shared Identity Hub, many participants | Tested | Per-participant keys, credentials and DID documents from one hub |
+| `edc-tenant` helm chart | Tested | Control plane + data plane, optional ingress and node ports |
+| `provision.sh` | Tested | Database, participant context, credential, helm release, rollout |
+| Catalog, negotiation, transfer between provisioned tenants | Tested | Full flow on one shared hub |
+| Provisioning API on top of `provision.sh` | Not implemented | |
+
 ## Gaia-X Addon (gx-impl)
 
 | Feature | Status | Notes |
