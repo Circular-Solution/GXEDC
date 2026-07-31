@@ -4,13 +4,11 @@ resource "kubernetes_config_map" "rds-init-sql" {
     namespace = kubernetes_namespace.ns.metadata.0.name
   }
   data = {
-    "init.sql" = <<-EOT
-      SELECT 'CREATE DATABASE cssp_consumer_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_consumer_edc')\gexec
-      SELECT 'CREATE DATABASE cssp_provider_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_provider_edc')\gexec
-      SELECT 'CREATE DATABASE cssp_identity_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_identity_edc')\gexec
-      SELECT 'CREATE DATABASE cssp_catalogserver_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_catalogserver_edc')\gexec
-      SELECT 'CREATE DATABASE cssp_issuer_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_issuer_edc')\gexec
-    EOT
+    "init.sql" = join("\n", concat(
+      ["SELECT 'CREATE DATABASE cssp_identity_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_identity_edc')\\gexec"],
+      var.enable-catalog-server ? ["SELECT 'CREATE DATABASE cssp_catalogserver_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_catalogserver_edc')\\gexec"] : [],
+      var.enable-issuer ? ["SELECT 'CREATE DATABASE cssp_issuer_edc' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'cssp_issuer_edc')\\gexec"] : [],
+    ))
 
     "issuer-init.sql" = <<-EOT
       CREATE TABLE IF NOT EXISTS membership_attestations (
@@ -57,7 +55,7 @@ resource "kubernetes_job" "rds-init" {
           args = [
             <<-EOT
               PGPASSWORD=$RDS_PASSWORD psql -h $RDS_HOST -p $RDS_PORT -U $RDS_USER -f /sql/init.sql
-              PGPASSWORD=$RDS_PASSWORD psql -h $RDS_HOST -p $RDS_PORT -U $RDS_USER -d cssp_issuer_edc -f /sql/issuer-init.sql
+              ${var.enable-issuer ? "PGPASSWORD=$RDS_PASSWORD psql -h $RDS_HOST -p $RDS_PORT -U $RDS_USER -d cssp_issuer_edc -f /sql/issuer-init.sql" : "true"}
             EOT
           ]
 
