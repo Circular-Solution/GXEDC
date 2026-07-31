@@ -113,9 +113,7 @@ resource "kubernetes_config_map" "identityhub-config" {
 
   data = {
     # IdentityHub variables
-    EDC_IH_IAM_ID                      = var.participantId
     EDC_IAM_DID_WEB_USE_HTTPS          = var.use-https
-    EDC_IH_IAM_PUBLICKEY_ALIAS         = local.public-key-alias
     EDC_IH_API_SUPERUSER_KEY           = var.ih_superuser_apikey
     WEB_HTTP_PORT                      = var.ports.web
     WEB_HTTP_PATH                      = "/api"
@@ -152,6 +150,3 @@ resource "kubernetes_config_map" "identityhub-config" {
   }
 }
 
-locals {
-  public-key-alias = "${var.humanReadableName}-publickey"
-}
